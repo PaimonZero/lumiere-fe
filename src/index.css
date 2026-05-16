@@ -1,0 +1,811 @@
+/* ============================================================
+   Lumiere AI — Global Design System
+   Light: Soft Lavender Canvas · Dark: Warm Charcoal
+   Typography: EB Garamond (display) + Inter (body)
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300..900;1,300..900&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+/* ── Tailwind v4 Theme Tokens (Light Mode Defaults) ─────────── */
+@theme {
+  /* ── Brand & Primary Action ── */
+  /* Rich indigo-purple — pops on both light lavender & dark charcoal */
+  --color-primary: #5b4fcf;        /* Primary CTA — indigo-purple */
+  --color-primary-active: #4338ca; /* Press state */
+  --color-primary-on: #ffffff;     /* Text ON primary button — always white */
+  --color-ai-accent: #5b4fcf;      /* Alias for legacy references */
+  --color-ink: #1e1b4b;            /* Darkest text — deep indigo-ink */
+
+  /* ── Canvas & Surface (Light — Soft Lavender) ── */
+  --color-bg-base: #f8f9fe;        /* Softer, brighter lavender/white */
+  --color-bg-elevated: #f0f2fb;    /* Slightly deeper for header/sidebar */
+  --color-bg-card: rgba(255, 255, 255, 0.85); /* Glass card base */
+  --color-bg-hover: #ede9fe;       /* Hover state */
+  --color-surface-strong: #e5e2f8; /* Badges, icon plates */
+  --color-glass-panel: rgba(255, 255, 255, 0.7); /* Standard glassmorphism */
+  --color-glass-border: rgba(255, 255, 255, 0.4);
+
+  /* ── Borders ── */
+  --color-border: #ccd1f0;         /* Deepened purple-tinted hairline */
+  --color-border-subtle: #e2e4f5;
+  --color-border-strong: #b1b6e8;
+
+  /* ── Text (Light Mode) — Deep indigo, NOT black ── */
+  --color-text-primary: #1e1b4b;   /* Deep indigo — strong but not black */
+  --color-text-secondary: #3730a3; /* Medium indigo — readable on lavender */
+  --color-text-muted: #5b5898;     /* Muted indigo-grey — visible not harsh */
+  --color-text-muted-soft: #8583b8;
+
+  /* ── Atmospheric Gradients (Signature — unchanged) ── */
+  --gradient-mint: #a7e5d3;
+  --gradient-peach: #f4c5a8;
+  --gradient-lavender: #c8b8e0;
+  --gradient-sky: #a8c8e8;
+  --gradient-rose: #e8b8c4;
+
+  /* ── Fonts ── */
+  --font-display: "Be Vietnam Pro", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "Fira Code", monospace;
+
+  /* ── Radii ── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-xxl: 24px;
+  --radius-pill: 9999px;
+  --radius-base: var(--radius-xl);
+
+  /* ── Layout ── */
+  --layout-left-width: 280px;
+  --layout-right-width: 320px;
+  --layout-header-height: 56px;
+
+  /* ── Semantic ── */
+  --color-error: #dc2626;
+  --color-success: #16a34a;
+}
+
+/* ── Dark Mode — Warm Charcoal (NOT pitch black) ─────────────── */
+.dark {
+  /* Canvas: deep warm charcoal, not OLED black */
+  --color-bg-base: #1e1c2e;      /* Deep navy-charcoal */
+  --color-bg-elevated: #252338;  /* Slightly lighter for header/sidebar */
+  --color-bg-card: #2d2b42;      /* Cards float above base */
+  --color-bg-hover: #35324e;     /* Hover highlight */
+  --color-surface-strong: #3d3a58;
+
+  /* Borders: visible but subtle in dark */
+  --color-border: #444166;         /* Slightly brighter border */
+  --color-border-subtle: #2d2b42;
+  --color-border-strong: #5c5885;
+
+  /* Text: ALL white in dark mode */
+  --color-text-primary: #ffffff;    /* Pure white */
+  --color-text-secondary: #e8e6ff;  /* Soft white-lavender */
+  --color-text-muted: #c4c2e8;      /* Light lavender-grey — readable */
+  --color-text-muted-soft: #a09ec8;
+
+  /* Primary stays the same (purple still pops on dark charcoal) */
+  --color-primary: #7c6ef5;        /* Slightly lighter purple for dark bg contrast */
+  --color-primary-active: #6d5ee8;
+  --color-primary-on: #ffffff;
+  --color-ai-accent: #7c6ef5;
+  --color-ink: #f0efff;
+}
+
+/* ── Base Reset ──────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.625;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* ── Ant Design Reset ────────────────────────────────────────── */
+.ant-layout {
+  background: transparent !important;
+}
+
+.ant-layout-sider {
+  background: var(--color-bg-elevated) !important;
+}
+
+/* Ensure no default padding on content */
+.ant-layout-content {
+  padding: 0 !important;
+}
+
+/* ── Glassmorphism & Mesh Backgrounds ───────────────────────── */
+.bg-mesh-soft {
+  background-color: var(--color-bg-base);
+  background-image: 
+    radial-gradient(at 10% 0%, hsla(253, 58%, 94%, 1) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, hsla(220, 60%, 96%, 1) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, hsla(280, 50%, 95%, 1) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+.dark .bg-mesh-soft {
+  background-image: 
+    radial-gradient(at 10% 0%, hsla(253, 30%, 15%, 1) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, hsla(220, 30%, 16%, 1) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, hsla(280, 30%, 15%, 1) 0px, transparent 50%);
+}
+
+.glass-panel {
+  background: var(--color-glass-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-glass-border);
+}
+
+.dark .glass-panel {
+  background: rgba(30, 28, 46, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── Animations ──────────────────────────────────────────────── */
+
+/* ── Typography ──────────────────────────────────────────────── */
+code,
+pre,
+.font-mono {
+  font-family: var(--font-mono) !important;
+}
+
+/* ── Animations ──────────────────────────────────────────────── */
+
+/* Streaming cursor blink */
+@keyframes streaming-cursor {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.streaming-cursor::after {
+  content: "▋";
+  color: var(--color-ai-accent);
+  animation: streaming-cursor 0.8s ease-in-out infinite;
+  margin-left: 2px;
+}
+
+/* Typing indicator dots */
+@keyframes typing-dot {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-ai-accent);
+  animation: typing-dot 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* CoT step pulse (active) */
+@keyframes cot-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(99, 102, 241, 0);
+  }
+}
+
+.cot-pulse {
+  animation: cot-pulse 1.5s ease-in-out infinite;
+}
+
+/* Fade in */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fade-in 200ms ease forwards;
+}
+
+/* Slide in from left */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-left {
+  animation: slide-in-left 200ms ease forwards;
+}
+
+/* ── Chat Bubble Shapes ──────────────────────────────────────── */
+.bubble-user {
+  border-radius: 1rem 1rem 0 1rem;
+  background-color: var(--color-primary);
+  color: var(--color-primary-on); /* Always white — set per mode */
+  box-shadow: 0 4px 16px rgba(91, 79, 207, 0.2);
+}
+
+.bubble-ai {
+  border-radius: 1rem 1rem 1rem 0;
+  background-color: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+}
+
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  text-align: center;
+  padding: 3rem 1rem 2rem; /* 3rem top = center + 1rem downward offset */
+  position: relative;
+  z-index: 10;
+}
+
+/* ── Atmospheric Utilities ─────────────────────────────────────── */
+.gradient-orb {
+  filter: blur(80px);
+  opacity: 0.4;
+  border-radius: 9999px;
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-bloom {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg-base);
+}
+
+.bg-bloom::before {
+  content: "";
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 40%;
+  height: 40%;
+  background: var(--gradient-mint);
+  filter: blur(100px);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.bg-bloom::after {
+  content: "";
+  position: absolute;
+  bottom: -10%;
+  right: -10%;
+  width: 40%;
+  height: 40%;
+  background: var(--gradient-lavender);
+  filter: blur(100px);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* ── Card hover glow ─────────────────────────────────────────── */
+.card-hover {
+  transition:
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+}
+.card-hover:hover {
+  box-shadow: 0 4px 24px rgba(91, 79, 207, 0.18);
+  border-color: var(--color-primary) !important;
+}
+
+/* ── Landing Page Styles ───────────────────────────────────── */
+@keyframes landing-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.landing-gradient {
+  background: linear-gradient(120deg, #6366f1 0%, #8b5cf6 45%, #3b82f6 100%);
+  background-size: 200% 200%;
+  animation: landing-gradient-shift 12s ease infinite;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 30px rgba(8, 12, 30, 0.24);
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 500ms ease,
+    transform 500ms ease;
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.glow-button {
+  position: relative;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.glow-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(99, 102, 241, 0.5);
+}
+
+.counter-animate {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float-animation {
+  animation: float-soft 4s ease-in-out infinite;
+}
+
+.landing-page-shell {
+  background: var(--landing-page-bg);
+}
+
+/* Landing page is intentionally fixed to light mode for branding consistency. */
+.landing-page-static-light {
+  --color-text-primary: #1e1b4b;
+  --color-text-secondary: #4338ca;
+  --color-text-muted: #6b7280;
+  --landing-nav-bg: rgba(255, 255, 255, 0.82);
+  --landing-surface: rgba(255, 255, 255, 0.86);
+  --landing-surface-strong: rgba(124, 58, 237, 0.1);
+  --landing-border: rgba(99, 102, 241, 0.24);
+  --landing-page-bg:
+    radial-gradient(
+      circle at 15% 0%,
+      rgba(99, 102, 241, 0.22),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(168, 85, 247, 0.2),
+      transparent 40%
+    ),
+    linear-gradient(180deg, #f8fafc 0%, #eef2ff 52%, #f8fafc 100%);
+  --landing-live-bubble-strong: rgba(79, 70, 229, 0.2);
+  --landing-live-bubble-soft: rgba(255, 255, 255, 0.24);
+}
+
+.auth-surface {
+  background: var(--auth-bg-gradient);
+}
+
+.theme-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid var(--landing-border);
+  background: var(--landing-surface);
+  color: var(--color-text-primary);
+  border-radius: 9999px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.theme-mode-toggle:hover {
+  border-color: var(--color-ai-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.18);
+}
+
+.theme-mode-toggle--compact {
+  padding: 0.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.how-it-works-section {
+  color: var(--color-text-primary);
+}
+
+.how-it-works-timeline {
+  position: relative;
+  padding-top: 1.2rem;
+}
+
+.how-it-works-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  border-top: 2px solid rgba(99, 102, 241, 0.14);
+}
+
+.how-step-item {
+  position: relative;
+  z-index: 1;
+}
+
+.how-step-number {
+  font-family: var(--font-mono);
+  font-size: clamp(3.2rem, 6vw, 5.2rem);
+  line-height: 0.92;
+  font-weight: 700;
+  color: rgba(99, 102, 241, 0.17);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.how-step-title {
+  font-size: clamp(1.25rem, 1.6vw, 1.9rem);
+  line-height: 1.25;
+  font-weight: 700;
+  margin: 0 0 0.65rem;
+  color: var(--color-text-primary);
+}
+
+.how-step-description {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: clamp(1rem, 1.15vw, 1.28rem);
+  line-height: 1.5;
+}
+
+@media (max-width: 767px) {
+  .how-it-works-timeline {
+    padding-top: 0;
+  }
+
+  .how-it-works-line {
+    display: none;
+  }
+
+  .how-step-item {
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(99, 102, 241, 0.18);
+  }
+}
+
+.testimonial-section {
+  background: #f2edf9;
+}
+
+.testimonial-card {
+  border-radius: 2rem;
+  background: #ece6f6;
+  padding: 1.9rem 1.8rem 1.7rem;
+  min-height: 20.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.testimonial-card--featured {
+  background: #d8cef0;
+}
+
+.testimonial-quote {
+  margin: 0;
+  color: #4a4f84;
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.05rem, 1.5vw, 2rem);
+  line-height: 1.5;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 0.82rem;
+  margin-top: 1.6rem;
+}
+
+.testimonial-avatar {
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.28);
+}
+
+.testimonial-name {
+  margin: 0;
+  color: #1e1b4b;
+  font-size: 1.58rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.testimonial-role {
+  margin: 0.2rem 0 0;
+  color: #464b86;
+  font-size: 1.22rem;
+  line-height: 1.2;
+}
+
+@media (max-width: 1023px) {
+  .testimonial-card {
+    min-height: unset;
+  }
+}
+
+/* ── Dashboard Layout Fixes ─────────────────────────────── */
+
+/* Prevent panels from sticking to screen edges */
+.ant-layout {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: var(--color-bg-base) !important;
+}
+
+.ant-layout-sider {
+  background: var(--color-bg-elevated) !important;
+  overflow: hidden !important;
+}
+
+/* Sider content should have proper inner padding */
+.ant-layout-sider .ant-layout {
+  height: 100%;
+}
+
+/* Dashboard center panel overflow handling */
+.dashboard-center-panel {
+  overflow: hidden;
+}
+
+/* Resizer line hover hint */
+.layout-resizer:hover {
+  background: var(--color-ai-accent) !important;
+}
+
+/* Panel inner sections spacing */
+.panel-section {
+  padding: 0;
+}
+
+/* Tab content areas — consistent spacing */
+.ant-tabs-content {
+  padding: 0;
+}
+
+/* ── Reduced Motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .landing-gradient,
+  .float-animation {
+    animation: none !important;
+  }
+
+  .scroll-reveal,
+  .scroll-reveal.is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ── Markdown Content ────────────────────────────────────────── */
+.markdown-content h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--color-text-primary);
+}
+.markdown-content h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--color-text-primary);
+}
+.markdown-content h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+  color: var(--color-text-secondary);
+}
+.markdown-content p {
+  margin: 0.5rem 0;
+  color: var(--color-text-primary);
+}
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+.markdown-content li {
+  margin: 0.25rem 0;
+}
+.markdown-content code {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.875em;
+  font-family: var(--font-mono);
+}
+.markdown-content pre {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+.markdown-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+.markdown-content blockquote {
+  border-left: 3px solid var(--color-ai-accent);
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: var(--color-text-secondary);
+}
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin: 0.75rem 0;
+}
+.markdown-content th {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+}
+.markdown-content td {
+  border: 1px solid var(--color-border-subtle);
+  padding: 0.5rem 0.75rem;
+}
+.markdown-content td:nth-child(even) {
+  background: var(--color-bg-elevated);
+}
+
+/* ── Darkmode Icon & Button Color Fixes ─────────────────────── */
+/* Ensure Ant Design text-type buttons always show icons with correct color */
+.ant-btn-text .anticon,
+.ant-btn-text svg {
+  color: inherit;
+}
+
+/* Header buttons: always use primary text color */
+.ant-layout-header .ant-btn-text {
+  color: var(--color-text-primary) !important;
+}
+.ant-layout-header .ant-btn-text:hover {
+  color: var(--color-primary) !important;
+  background: var(--color-bg-hover) !important;
+}
+
+/* Sidebar text color fix for darkmode */
+.ant-layout-sider .ant-typography,
+.ant-layout-sider .ant-list-item,
+.ant-layout-sider .ant-tabs-tab {
+  color: var(--color-text-primary);
+}
+
+/* Ant Design Tabs in dark mode */
+.dark .ant-tabs-tab {
+  color: var(--color-text-secondary) !important;
+}
+.dark .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-primary) !important;
+}
+
+/* ── Slide iframe: prevent darkmode bleeding ─────────────────── */
+/* Ensure slide iframes are not affected by parent dark mode */
+iframe[title="Slidev Presentation"] {
+  color-scheme: light;
+  background: #ffffff;
+}
+
+/* Fix font for Modals */
+.ant-modal, .ant-modal-title, .ant-modal-content { font-family: var(--font-body) !important; }
+
