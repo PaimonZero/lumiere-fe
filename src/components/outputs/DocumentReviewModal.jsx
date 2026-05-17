@@ -1,28 +1,35 @@
 import { useState, useEffect } from "react";
 import { X, Save, FileText, Loader2 } from "lucide-react";
-import MDEditor from "@uiw/react-md-editor";
 import useTheme from "../../hooks/useTheme.js";
+import MarkdownEditor from "../common/MarkdownEditor.jsx";
 
 export default function DocumentReviewModal({
   parsedDoc, // { filename, file_key, markdown }
   onConfirm, // async function(filename, file_key, markdownContent)
   onCancel,
 }) {
-  const { theme, isLight } = useTheme();
+  const { isLight } = useTheme();
   const [markdown, setMarkdown] = useState(parsedDoc?.markdown || "");
+  const [filename, setFilename] = useState(parsedDoc?.filename || "");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (parsedDoc) {
       setMarkdown(parsedDoc.markdown || "");
+      setFilename(parsedDoc.filename || "");
     }
   }, [parsedDoc]);
 
   const handleSave = async () => {
     if (parsedDoc) {
+      const nextFilename = filename.trim();
+      if (!nextFilename) {
+        window.alert("Vui long nhap ten file.");
+        return;
+      }
       setIsSaving(true);
       try {
-        await onConfirm(parsedDoc.filename, parsedDoc.file_key, markdown);
+        await onConfirm(nextFilename, parsedDoc.file_key, markdown);
       } finally {
         setIsSaving(false);
       }
@@ -38,20 +45,23 @@ export default function DocumentReviewModal({
       }}
     >
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-6 py-3 shrink-0"
-        style={{ borderColor: "var(--color-border)", borderBottom: '1px solid', minHeight: 64 }}
-      >
-        <div className="flex items-center gap-3 min-w-0">
+      <div className="upload-document-header">
+        <div className="upload-document-title-group">
           <FileText size={20} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
-          <div className="min-w-0">
-            <h3
-              className="font-semibold text-lg truncate"
-              title={parsedDoc?.filename}
-              style={{ color: "var(--color-text-primary)", maxWidth: 'calc(100vw - 280px)' }}
-            >
-              {parsedDoc?.filename}
-            </h3>
+          <div className="upload-document-title-body">
+            <input
+              value={filename}
+              onChange={(event) => setFilename(event.target.value)}
+              disabled={isSaving}
+              title={filename}
+              aria-label="Ten file"
+              className="upload-document-filename-input font-semibold text-lg truncate outline-none rounded-md px-2 py-1"
+              style={{
+                color: "var(--color-text-primary)",
+                background: "var(--color-bg-card)",
+                border: "1px solid var(--color-border)",
+              }}
+            />
             <p
               className="text-xs"
               style={{ color: "var(--color-text-muted)" }}
@@ -60,11 +70,11 @@ export default function DocumentReviewModal({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="upload-document-actions">
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 rounded-md justify-center text-sm cursor-pointer transition-colors"
+            className="upload-document-primary-button flex items-center gap-2 px-4 py-2 rounded-md justify-center text-sm cursor-pointer transition-colors"
             style={{ background: "var(--color-ai-accent)", color: "white" }}
           >
             {isSaving ? (
@@ -92,7 +102,7 @@ export default function DocumentReviewModal({
       </div>
 
       {/* Editor Body */}
-      <div className="flex-1 overflow-hidden relative" data-color-mode={theme}>
+      <div className="flex-1 overflow-hidden relative">
         {isSaving && (
           <div
             className="absolute inset-0 z-30 flex items-center justify-center backdrop-blur-sm"
@@ -110,12 +120,12 @@ export default function DocumentReviewModal({
           </div>
         )}
 
-        <MDEditor
+        <MarkdownEditor
           value={markdown}
           onChange={(val) => setMarkdown(val || "")}
           height="100%"
-          visibleDragbar={false}
           preview="live"
+          placeholder="Noi dung Markdown sau khi parse..."
         />
       </div>
     </div>

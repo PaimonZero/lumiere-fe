@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Carousel, Modal, Tag, Typography } from 'antd';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import MarkdownRenderer from '../common/MarkdownRenderer.jsx';
 import {
   normalizeImage,
   sourceContent,
@@ -149,9 +150,9 @@ function SourceContentModal({ source, open, onClose }) {
       styles={{ body: { maxHeight: '66vh', overflowY: 'auto', padding: '16px 24px' } }}
     >
       {content ? (
-        <Paragraph style={{ fontSize: 14, lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+        <MarkdownRenderer style={{ fontSize: 14, lineHeight: 1.8 }}>
           {content}
-        </Paragraph>
+        </MarkdownRenderer>
       ) : (
         <Paragraph type="secondary" italic>
           Không có nội dung chi tiết trong metadata của nguồn này.

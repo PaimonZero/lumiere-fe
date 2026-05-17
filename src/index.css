@@ -11,30 +11,30 @@
 @theme {
   /* ── Brand & Primary Action ── */
   /* Rich indigo-purple — pops on both light lavender & dark charcoal */
-  --color-primary: #5b4fcf;        /* Primary CTA — indigo-purple */
+  --color-primary: #5b4fcf; /* Primary CTA — indigo-purple */
   --color-primary-active: #4338ca; /* Press state */
-  --color-primary-on: #ffffff;     /* Text ON primary button — always white */
-  --color-ai-accent: #5b4fcf;      /* Alias for legacy references */
-  --color-ink: #1e1b4b;            /* Darkest text — deep indigo-ink */
+  --color-primary-on: #ffffff; /* Text ON primary button — always white */
+  --color-ai-accent: #5b4fcf; /* Alias for legacy references */
+  --color-ink: #1e1b4b; /* Darkest text — deep indigo-ink */
 
   /* ── Canvas & Surface (Light — Soft Lavender) ── */
-  --color-bg-base: #f8f9fe;        /* Softer, brighter lavender/white */
-  --color-bg-elevated: #f0f2fb;    /* Slightly deeper for header/sidebar */
+  --color-bg-base: #f8f9fe; /* Softer, brighter lavender/white */
+  --color-bg-elevated: #f0f2fb; /* Slightly deeper for header/sidebar */
   --color-bg-card: rgba(255, 255, 255, 0.85); /* Glass card base */
-  --color-bg-hover: #ede9fe;       /* Hover state */
+  --color-bg-hover: #ede9fe; /* Hover state */
   --color-surface-strong: #e5e2f8; /* Badges, icon plates */
   --color-glass-panel: rgba(255, 255, 255, 0.7); /* Standard glassmorphism */
   --color-glass-border: rgba(255, 255, 255, 0.4);
 
   /* ── Borders ── */
-  --color-border: #ccd1f0;         /* Deepened purple-tinted hairline */
+  --color-border: #ccd1f0; /* Deepened purple-tinted hairline */
   --color-border-subtle: #e2e4f5;
   --color-border-strong: #b1b6e8;
 
   /* ── Text (Light Mode) — Deep indigo, NOT black ── */
-  --color-text-primary: #1e1b4b;   /* Deep indigo — strong but not black */
+  --color-text-primary: #1e1b4b; /* Deep indigo — strong but not black */
   --color-text-secondary: #3730a3; /* Medium indigo — readable on lavender */
-  --color-text-muted: #5b5898;     /* Muted indigo-grey — visible not harsh */
+  --color-text-muted: #5b5898; /* Muted indigo-grey — visible not harsh */
   --color-text-muted-soft: #8583b8;
 
   /* ── Atmospheric Gradients (Signature — unchanged) ── */
@@ -72,25 +72,25 @@
 /* ── Dark Mode — Warm Charcoal (NOT pitch black) ─────────────── */
 .dark {
   /* Canvas: deep warm charcoal, not OLED black */
-  --color-bg-base: #1e1c2e;      /* Deep navy-charcoal */
-  --color-bg-elevated: #252338;  /* Slightly lighter for header/sidebar */
-  --color-bg-card: #2d2b42;      /* Cards float above base */
-  --color-bg-hover: #35324e;     /* Hover highlight */
+  --color-bg-base: #1e1c2e; /* Deep navy-charcoal */
+  --color-bg-elevated: #252338; /* Slightly lighter for header/sidebar */
+  --color-bg-card: #2d2b42; /* Cards float above base */
+  --color-bg-hover: #35324e; /* Hover highlight */
   --color-surface-strong: #3d3a58;
 
   /* Borders: visible but subtle in dark */
-  --color-border: #444166;         /* Slightly brighter border */
+  --color-border: #444166; /* Slightly brighter border */
   --color-border-subtle: #2d2b42;
   --color-border-strong: #5c5885;
 
   /* Text: ALL white in dark mode */
-  --color-text-primary: #ffffff;    /* Pure white */
-  --color-text-secondary: #e8e6ff;  /* Soft white-lavender */
-  --color-text-muted: #c4c2e8;      /* Light lavender-grey — readable */
+  --color-text-primary: #ffffff; /* Pure white */
+  --color-text-secondary: #e8e6ff; /* Soft white-lavender */
+  --color-text-muted: #c4c2e8; /* Light lavender-grey — readable */
   --color-text-muted-soft: #a09ec8;
 
   /* Primary stays the same (purple still pops on dark charcoal) */
-  --color-primary: #7c6ef5;        /* Slightly lighter purple for dark bg contrast */
+  --color-primary: #7c6ef5; /* Slightly lighter purple for dark bg contrast */
   --color-primary-active: #6d5ee8;
   --color-primary-on: #ffffff;
   --color-ai-accent: #7c6ef5;
@@ -149,7 +149,7 @@ body {
 /* ── Glassmorphism & Mesh Backgrounds ───────────────────────── */
 .bg-mesh-soft {
   background-color: var(--color-bg-base);
-  background-image: 
+  background-image:
     radial-gradient(at 10% 0%, hsla(253, 58%, 94%, 1) 0px, transparent 50%),
     radial-gradient(at 90% 10%, hsla(220, 60%, 96%, 1) 0px, transparent 50%),
     radial-gradient(at 50% 90%, hsla(280, 50%, 95%, 1) 0px, transparent 50%);
@@ -157,7 +157,7 @@ body {
 }
 
 .dark .bg-mesh-soft {
-  background-image: 
+  background-image:
     radial-gradient(at 10% 0%, hsla(253, 30%, 15%, 1) 0px, transparent 50%),
     radial-gradient(at 90% 10%, hsla(220, 30%, 16%, 1) 0px, transparent 50%),
     radial-gradient(at 50% 90%, hsla(280, 30%, 15%, 1) 0px, transparent 50%);
@@ -291,12 +291,40 @@ pre,
   box-shadow: 0 4px 16px rgba(91, 79, 207, 0.2);
 }
 
+.bubble-user .markdown-content,
+.bubble-user .markdown-content h1,
+.bubble-user .markdown-content h2,
+.bubble-user .markdown-content h3,
+.bubble-user .markdown-content p,
+.bubble-user .markdown-content li,
+.bubble-user .markdown-content blockquote {
+  color: var(--color-primary-on);
+}
+
+.bubble-user .markdown-content a {
+  color: var(--color-primary-on);
+  text-decoration: underline;
+}
+
+.bubble-user .markdown-content code,
+.bubble-user .markdown-content pre {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: var(--color-primary-on);
+}
+
 .bubble-ai {
   border-radius: 1rem 1rem 1rem 0;
-  background-color: var(--color-bg-card);
+  background-color: #ffffff;
   color: var(--color-text-primary);
-  border: 1px solid var(--color-border-subtle);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.dark .bubble-ai {
+  background-color: var(--color-bg-card);
+  border-color: var(--color-border-subtle);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
 .empty-state-container {
@@ -690,6 +718,144 @@ pre,
 }
 
 /* ── Markdown Content ────────────────────────────────────────── */
+/* Upload document editor header */
+.upload-document-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-height: 64px;
+  padding: 0.75rem 1.5rem;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.upload-document-title-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: min(16rem, 100%);
+  flex: 1 1 22rem;
+}
+
+.upload-document-title-body {
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 auto;
+}
+
+.upload-document-filename-input,
+.upload-document-filename-input.ant-input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.upload-document-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  max-width: 100%;
+  margin-left: auto;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+}
+
+.upload-document-primary-button {
+  min-height: 2.5rem;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.upload-document-separator {
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .upload-document-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .upload-document-actions {
+    width: 100%;
+  }
+
+  .upload-document-primary-button {
+    flex: 1 1 auto;
+  }
+}
+
+.markdown-editor-shell {
+  --color-fg-default: var(--color-text-primary);
+  --color-fg-muted: var(--color-text-muted);
+  --color-fg-subtle: var(--color-text-muted-soft);
+  --color-canvas-default: var(--color-bg-card);
+  --color-canvas-subtle: var(--color-bg-elevated);
+  --color-border-default: var(--color-border);
+  --color-border-muted: var(--color-border-subtle);
+  --color-neutral-muted: var(--color-bg-hover);
+  --color-accent-fg: var(--color-primary);
+  --color-accent-emphasis: var(--color-primary);
+  --md-editor-background-color: var(--color-bg-card);
+  --md-editor-box-shadow-color: var(--color-border);
+}
+
+.markdown-editor-shell .w-md-editor {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  color: var(--color-text-primary);
+  overflow: hidden;
+}
+
+.markdown-editor-shell .w-md-editor-toolbar {
+  background: var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.markdown-editor-shell .w-md-editor-toolbar li > button {
+  color: var(--color-text-secondary);
+}
+
+.markdown-editor-shell .w-md-editor-toolbar li > button:hover,
+.markdown-editor-shell .w-md-editor-toolbar li > button:focus,
+.markdown-editor-shell .w-md-editor-toolbar li.active > button {
+  background: var(--color-bg-hover);
+  color: var(--color-primary);
+}
+
+.markdown-editor-shell .w-md-editor-content,
+.markdown-editor-shell .w-md-editor-text,
+.markdown-editor-shell .w-md-editor-preview,
+.markdown-editor-shell .wmde-markdown {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+
+.markdown-editor-shell .w-md-editor-text-input {
+  caret-color: var(--color-text-primary);
+  color: var(--color-text-primary);
+}
+
+.markdown-editor-shell .w-md-editor-text-input::placeholder {
+  color: var(--color-text-muted-soft);
+}
+
+.markdown-editor-shell .w-md-editor-text-pre > code {
+  color: var(--color-text-primary);
+}
+
+.markdown-editor-shell .w-md-editor-preview {
+  box-shadow: inset 1px 0 0 var(--color-border-subtle);
+}
+
+.markdown-editor-shell .wmde-markdown pre,
+.markdown-editor-shell .wmde-markdown code {
+  background: var(--color-bg-elevated);
+}
+
 .markdown-content h1 {
   font-size: 1.5rem;
   font-weight: 700;
@@ -711,6 +877,23 @@ pre,
 .markdown-content p {
   margin: 0.5rem 0;
   color: var(--color-text-primary);
+}
+.markdown-content-compact p:first-child,
+.markdown-content-compact h1:first-child,
+.markdown-content-compact h2:first-child,
+.markdown-content-compact h3:first-child,
+.markdown-content-compact ul:first-child,
+.markdown-content-compact ol:first-child,
+.markdown-content-compact pre:first-child,
+.markdown-content-compact blockquote:first-child {
+  margin-top: 0;
+}
+.markdown-content-compact p:last-child,
+.markdown-content-compact ul:last-child,
+.markdown-content-compact ol:last-child,
+.markdown-content-compact pre:last-child,
+.markdown-content-compact blockquote:last-child {
+  margin-bottom: 0;
 }
 .markdown-content ul,
 .markdown-content ol {
@@ -807,5 +990,8 @@ iframe[title="Slidev Presentation"] {
 }
 
 /* Fix font for Modals */
-.ant-modal, .ant-modal-title, .ant-modal-content { font-family: var(--font-body) !important; }
-
+.ant-modal,
+.ant-modal-title,
+.ant-modal-content {
+  font-family: var(--font-body) !important;
+}

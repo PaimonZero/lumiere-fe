@@ -1,6 +1,6 @@
-# Tổng quan Kiến trúc Frontend - Lumiere AI
+# Tổng quan Kiến trúc Frontend - TikoSmart
 
-Tài liệu này mô tả cấu trúc kiến trúc của dự án Frontend Lumiere AI. Bạn có thể sử dụng tài liệu này làm mẫu để triển khai các cấu trúc tương tự cho các dự án khác.
+Tài liệu này mô tả cấu trúc kiến trúc của dự án Frontend TikoSmart. Bạn có thể sử dụng tài liệu này làm mẫu để triển khai các cấu trúc tương tự cho các dự án khác.
 
 ## 🚀 Công nghệ sử dụng (Technology Stack)
 
@@ -19,57 +19,43 @@ Tài liệu này mô tả cấu trúc kiến trúc của dự án Frontend Lumie
 Thư mục `src` được tổ chức theo mối quan tâm (concern) và tính năng (feature) để đảm bảo khả năng mở rộng và bảo trì.
 
 ### 1. `assets/`
-
 Chứa các tài nguyên tĩnh như hình ảnh, biểu tượng SVG và font chữ hệ thống.
 
 ### 2. `components/`
-
 Các thành phần giao diện có thể tái sử dụng, được phân loại theo phạm vi:
-
 - **`common/`**: Các thành phần chung dùng cho toàn bộ ứng dụng (Buttons, Inputs, Modals).
 - **`ui/`**: Các thành phần giao diện cơ bản (thường từ Shadcn UI).
 - **`shared/`**: Các thành phần được chia sẻ giữa các tính năng cụ thể.
 - **Thư mục theo tính năng** (ví dụ: `socket/`, `sePay/`): Các thành phần chứa logic nặng liên quan đến các tích hợp cụ thể.
 
 ### 3. `layouts/`
-
 Các bản mẫu (templates) cấu trúc bao quanh trang. Ví dụ:
-
 - `MainLayout.jsx`: Chứa thanh điều hướng trên cùng, thanh bên (sidebar) và khu vực nội dung.
 - `AuthLayout.jsx`: Chứa các biểu mẫu căn giữa cho Đăng nhập/Đăng ký.
 
 ### 4. `pages/`
-
 Các thành phần hiển thị chính (View). Mỗi thư mục con thường đại diện cho một tính năng hoặc module lớn (ví dụ: `Dashboard/`, `SalesOrders/`).
-
 - Tập trung vào việc kết hợp các components và quản lý trạng thái cấp trang.
 - Kết nối với Redux hooks (`useDispatch`, `useSelector`).
 
 ### 5. `routes/`
-
 Cấu hình định tuyến tập trung:
-
 - `AppRoutes.jsx`: Điểm bắt đầu chính cho tất cả các tuyến đường.
 - Các file định tuyến theo module (ví dụ: `AdminRoutes.jsx`, `ProductRoutes.jsx`) để giữ file chính gọn gàng.
 - `ProtectedRoute.jsx`: Logic kiểm tra xác thực và phân quyền (authorization).
 
 ### 6. `services/`
-
 Lớp API (API Layer).
-
 - `apiClient.js`: Cấu hình instance Axios (base URL, interceptors để gắn token).
 - `*Service.js`: Định nghĩa các lời gọi API cụ thể (ví dụ: `authService.js`, `productService.js`).
 - Không chứa logic giao diện, chỉ xử lý lấy và gửi dữ liệu.
 
 ### 7. `store/`
-
 Quản lý trạng thái toàn cục sử dụng Redux Toolkit.
-
 - `store.js`: Cấu hình root store.
 - `*Slice.js`: Các mảng trạng thái (state slices) theo tính năng, bao gồm reducers và extraReducers cho async thunks (xử lý API bất đồng bộ).
 
 ### 8. `utils/`
-
 Các hàm tiện ích, trình định dạng (ngày tháng, tiền tệ) và các hằng số dùng chung.
 
 ---
@@ -79,7 +65,6 @@ Các hàm tiện ích, trình định dạng (ngày tháng, tiền tệ) và cá
 Dưới đây là các ví dụ thực tế từ dự án để bạn hiểu cách các thành phần phối hợp với nhau.
 
 ### 1. Định tuyến (React Router) - `src/routes/AppRoutes.jsx`
-
 Dự án sử dụng cách tiếp cận tách biệt các nhóm route để dễ quản lý.
 
 ```javascript
@@ -93,7 +78,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Route không yêu cầu layout hoặc auth */}
-      {AuthRoutes()}
+      {AuthRoutes()} 
 
       {/* Route sử dụng MainLayout (Sidebar, Header) */}
       <Route element={<MainLayout />}>
@@ -107,7 +92,6 @@ const AppRoutes = () => {
 ```
 
 ### 2. Quản lý trạng thái (Redux Slice) - `src/store/userSlice.js`
-
 Sử dụng `createAsyncThunk` để xử lý các logic bất đồng bộ (API).
 
 ```javascript
@@ -125,7 +109,7 @@ export const fetchListUsers = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
-  },
+  }
 );
 
 const userSlice = createSlice({
@@ -148,7 +132,6 @@ const userSlice = createSlice({
 ```
 
 ### 3. Tầng API (Service) - `src/services/userService.js`
-
 Mọi lời gọi API đều đi qua `apiClient` để quản lý tập trung baseURL và Token.
 
 ```javascript
@@ -165,7 +148,6 @@ export const createUser = (userData) => {
 ```
 
 ### 4. Sử dụng trong Component - `src/pages/user/UserManage.jsx`
-
 Kết hợp React hooks và Redux hooks để lấy dữ liệu.
 
 ```javascript
@@ -186,9 +168,7 @@ const UserManage = () => {
 
   return (
     <div>
-      {users.map((user) => (
-        <div key={user.id}>{user.name}</div>
-      ))}
+      {users.map(user => <div key={user.id}>{user.name}</div>)}
     </div>
   );
 };
@@ -213,6 +193,6 @@ const UserManage = () => {
 - **Giao tiếp Component**: Sử dụng Redux cho trạng thái toàn cục và Props/Context cho trạng thái giao diện cục bộ.
 - **API Interceptors**: Luôn sử dụng `apiClient` để đảm bảo token được tự động đính kèm vào các yêu cầu.
 - **Quy tắc đặt tên**:
-  - Components/Pages: `PascalCase.jsx`
-  - Services/Slices/Utils: `camelCase.js`
+    - Components/Pages: `PascalCase.jsx`
+    - Services/Slices/Utils: `camelCase.js`
 - **Thiết kế thích ứng (Responsive)**: Tận dụng các lớp utility của Tailwind để thiết kế ưu tiên thiết bị di động (mobile-first).

@@ -4,12 +4,44 @@
  *
  * Uses POST /api/generate (non-streaming) + Socket.IO for real-time progress.
  */
-import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+  lazy,
+  Suspense,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Card, Carousel, Collapse, Flex, Form, Input, InputNumber, Modal, Select, Segmented, Space, Typography } from "antd";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { Send, Paperclip, Loader2, UploadCloud, Presentation, FileText, ListChecks, Check, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Button,
+  Card,
+  Carousel,
+  Collapse,
+  Flex,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Select,
+  Segmented,
+  Space,
+  Typography,
+} from "antd";
+import {
+  Send,
+  Paperclip,
+  Loader2,
+  UploadCloud,
+  Presentation,
+  FileText,
+  ListChecks,
+  Check,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { uploadService } from "../../services/uploadService.js";
 import { slideTemplateService } from "../../services/slideTemplateService.js";
 import { getSocket, joinSession } from "../../services/socketClient.js";
@@ -19,6 +51,7 @@ import {
   buildQuestionDisplayMessage,
 } from "../../lib/slideRequestMapping.js";
 import { notify } from "../common/Notifications.jsx";
+import MarkdownRenderer from "../common/MarkdownRenderer.jsx";
 import ActivityTracePanel from "../cot/ActivityTracePanel.jsx";
 import OutlineDeckModal from "../cot/OutlineDeckModal.jsx";
 import { confirmOutline, clearPendingOutline } from "../../store/chatSlice.js";
@@ -33,7 +66,14 @@ import {
   selectIsGenerating,
 } from "../../store/chatSlice.js";
 
-const SUPPORTED_UPLOAD_EXTENSIONS = [".pdf", ".docx", ".pptx", ".xlsx", ".txt", ".md"];
+const SUPPORTED_UPLOAD_EXTENSIONS = [
+  ".pdf",
+  ".docx",
+  ".pptx",
+  ".xlsx",
+  ".txt",
+  ".md",
+];
 
 const SUPPORTED_UPLOAD_MIME_TYPES = new Set([
   "application/pdf",
@@ -45,7 +85,9 @@ const SUPPORTED_UPLOAD_MIME_TYPES = new Set([
 ]);
 
 const { TextArea } = Input;
-const DocumentReviewModal = lazy(() => import("../outputs/DocumentReviewModal.jsx"));
+const DocumentReviewModal = lazy(
+  () => import("../outputs/DocumentReviewModal.jsx"),
+);
 
 function svgText(value) {
   return String(value || "Template")
@@ -157,7 +199,9 @@ export default function CenterPanel() {
   const agentProgress = useSelector(selectAgentProgress);
   const isGenerating = useSelector(selectIsGenerating);
   const pendingOutline = useSelector((state) => state.chat.pendingOutline);
-  const pendingSessionInfo = useSelector((state) => state.chat.pendingSessionInfo);
+  const pendingSessionInfo = useSelector(
+    (state) => state.chat.pendingSessionInfo,
+  );
 
   const [input, setInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -198,7 +242,8 @@ export default function CenterPanel() {
   }, [messages, agentProgress, isGenerating]);
 
   useEffect(() => {
-    if (!actionModalOpen || actionType !== "slide" || slideTemplates.length > 0) return;
+    if (!actionModalOpen || actionType !== "slide" || slideTemplates.length > 0)
+      return;
     let alive = true;
     setTemplatesLoading(true);
     setTemplatesError("");
@@ -209,7 +254,10 @@ export default function CenterPanel() {
       })
       .catch((error) => {
         console.warn("Failed to load slide templates", error);
-        if (alive) setTemplatesError("Khong tai duoc template preview. Vui long thu lai.");
+        if (alive)
+          setTemplatesError(
+            "Khong tai duoc template preview. Vui long thu lai.",
+          );
       })
       .finally(() => {
         if (alive) setTemplatesLoading(false);
@@ -219,7 +267,9 @@ export default function CenterPanel() {
     };
   }, [actionModalOpen, actionType, slideTemplates.length]);
 
-  const currentConversationId = useSelector((state) => state.chat.currentConversationId);
+  const currentConversationId = useSelector(
+    (state) => state.chat.currentConversationId,
+  );
 
   const previewUrls = useMemo(() => {
     if (!previewTemplate) return [];
@@ -228,20 +278,23 @@ export default function CenterPanel() {
   }, [previewTemplate]);
 
   const sendMessage = useCallback(
-    async (message, {
-      mode,
+    async (
+      message,
+      {
+        mode,
 
-      imageSource,
-      animationStyle,
-      slideTemplateSlug,
-      slideContentDepth,
-      slideCount,
-      slideRequest,
-      outputFormat,
-      quizTheme,
-      difficulty,
-      bloomLevel,
-    } = {}) => {
+        imageSource,
+        animationStyle,
+        slideTemplateSlug,
+        slideContentDepth,
+        slideCount,
+        slideRequest,
+        outputFormat,
+        quizTheme,
+        difficulty,
+        bloomLevel,
+      } = {},
+    ) => {
       if (!message || isGenerating) return;
 
       dispatch(addUserMessage(message));
@@ -265,7 +318,7 @@ export default function CenterPanel() {
             quizTheme,
             difficulty,
             bloomLevel,
-          })
+          }),
         ).unwrap();
       } catch {
         // Error state is handled inside generateContent.
@@ -273,7 +326,7 @@ export default function CenterPanel() {
 
       dispatch(fetchConversations());
     },
-    [currentConversationId, dispatch, isGenerating]
+    [currentConversationId, dispatch, isGenerating],
   );
 
   // ── Send message ──
@@ -296,10 +349,12 @@ export default function CenterPanel() {
     // Close modal immediately so user can see CoT progress
     const sessionInfo = { ...pendingSessionInfo };
     dispatch(clearPendingOutline());
-    dispatch(confirmOutline({
-      ...sessionInfo,
-      outline: editedOutline
-    }));
+    dispatch(
+      confirmOutline({
+        ...sessionInfo,
+        outline: editedOutline,
+      }),
+    );
   };
 
   const handleActionSubmit = async () => {
@@ -319,7 +374,9 @@ export default function CenterPanel() {
     let bloomLevel;
 
     if (actionType === "slide") {
-      const selectedTemplate = slideTemplates.find((t) => t.slug === values.slideTemplateSlug);
+      const selectedTemplate = slideTemplates.find(
+        (t) => t.slug === values.slideTemplateSlug,
+      );
       displayMessage = buildSlideDisplayMessage(values, selectedTemplate?.name);
       slideRequest = buildSlideRequestPayload(values);
 
@@ -327,7 +384,8 @@ export default function CenterPanel() {
       animationStyle = values.animationStyle || "none";
       slideTemplateSlug = values.slideTemplateSlug || "daisy-days";
       slideContentDepth = "detailed";
-      slideCount = values.slideCountMode === "custom" ? values.slideCount : undefined;
+      slideCount =
+        values.slideCountMode === "custom" ? values.slideCount : undefined;
     } else if (actionType === "summary") {
       displayMessage = buildSummaryDisplayMessage(values);
     } else {
@@ -372,7 +430,9 @@ export default function CenterPanel() {
 
     setIsUploading(true);
     // Auto-switch to Wiki tab and show loading item with filename
-    window.dispatchEvent(new CustomEvent('switch-wiki-tab', { detail: { filename: file.name } }));
+    window.dispatchEvent(
+      new CustomEvent("switch-wiki-tab", { detail: { filename: file.name } }),
+    );
 
     const notifKey = notify.uploadStart(file.name);
 
@@ -383,19 +443,25 @@ export default function CenterPanel() {
         file_key: result.file_key,
         markdown: result.markdown,
       });
-      notify.uploadSuccess(notifKey, result.filename, result.chunks_created || 'nhiều');
+      notify.uploadSuccess(
+        notifKey,
+        result.filename,
+        result.chunks_created || "nhiều",
+      );
     } catch (error) {
       console.error("Upload failed:", error);
       notify.uploadError(error.message, notifKey);
-      dispatch(addAgentProgress({
-        node: "upload",
-        message: `Lỗi upload: ${error.message}`,
-        timestamp: new Date().toISOString(),
-      }));
+      dispatch(
+        addAgentProgress({
+          node: "upload",
+          message: `Lỗi upload: ${error.message}`,
+          timestamp: new Date().toISOString(),
+        }),
+      );
     } finally {
       setIsUploading(false);
       // Clear loading item in LeftPanel
-      window.dispatchEvent(new CustomEvent('upload-wiki-done'));
+      window.dispatchEvent(new CustomEvent("upload-wiki-done"));
     }
   };
 
@@ -417,11 +483,13 @@ export default function CenterPanel() {
     if (parsedUpload) {
       try {
         await uploadService.cancelUpload(parsedUpload.file_key);
-        dispatch(addAgentProgress({
-          node: "upload",
-          message: `🚫 Đã hủy tải lên tài liệu ${parsedUpload.filename}`,
-          timestamp: new Date().toISOString(),
-        }));
+        dispatch(
+          addAgentProgress({
+            node: "upload",
+            message: `🚫 Đã hủy tải lên tài liệu ${parsedUpload.filename}`,
+            timestamp: new Date().toISOString(),
+          }),
+        );
       } catch (e) {
         console.error("Cancel failed:", e);
       }
@@ -486,8 +554,13 @@ export default function CenterPanel() {
         }}
         width={720}
         centered
-        destroyOnClose>
-        <Form form={actionForm} layout="vertical" initialValues={defaultActionValues[actionType]}>
+        destroyOnClose
+      >
+        <Form
+          form={actionForm}
+          layout="vertical"
+          initialValues={defaultActionValues[actionType]}
+        >
           <Form.Item
             name="topic"
             label="Chủ đề"
@@ -496,123 +569,218 @@ export default function CenterPanel() {
             <TextArea rows={2} placeholder="Ví dụ: Sóng âm - Vật lí 12" />
           </Form.Item>
 
-          <Form.Item name="extraRequirement" label="Yêu cầu thêm" tooltip="Không bắt buộc. Có thể ghi mục tiêu bài học, phạm vi kiến thức hoặc lưu ý của giáo viên.">
-            <TextArea rows={2} placeholder="Ví dụ: nhấn mạnh công thức, ứng dụng thực tế và lỗi học sinh hay nhầm" />
+          <Form.Item
+            name="extraRequirement"
+            label="Yêu cầu thêm"
+            tooltip="Không bắt buộc. Có thể ghi mục tiêu bài học, phạm vi kiến thức hoặc lưu ý của giáo viên."
+          >
+            <TextArea
+              rows={2}
+              placeholder="Ví dụ: nhấn mạnh công thức, ứng dụng thực tế và lỗi học sinh hay nhầm"
+            />
           </Form.Item>
 
           {actionType === "slide" && (
             <>
-            <Space style={{ width: "100%" }} size={12} wrap align="start">
-              <Form.Item name="audience" label="Đối tượng học" style={{ minWidth: 220, flex: 1 }}>
-                <Select
-                  options={[
-                    { value: "hocsinh-th", label: "Học sinh tiểu học" },
-                    { value: "hocsinh-thcs", label: "Học sinh THCS" },
-                    { value: "hocsinh-thpt", label: "Học sinh THPT" },
-                    { value: "sinhvien", label: "Sinh viên" },
-                    { value: "giaovien", label: "Giáo viên" },
-                  ]}
-                />
-              </Form.Item>
-              <Form.Item name="imageSource" label="Nguồn ảnh" style={{ minWidth: 260, flex: 1 }}>
-                <Segmented
-                  block
-                  options={[
-                    { value: "ai", label: "GPT Image 2" },
-                    { value: "web", label: "Web" },
-                  ]}
-                />
-              </Form.Item>
-            </Space>
+              <Space style={{ width: "100%" }} size={12} wrap align="start">
+                <Form.Item
+                  name="audience"
+                  label="Đối tượng học"
+                  style={{ minWidth: 220, flex: 1 }}
+                >
+                  <Select
+                    options={[
+                      { value: "hocsinh-th", label: "Học sinh tiểu học" },
+                      { value: "hocsinh-thcs", label: "Học sinh THCS" },
+                      { value: "hocsinh-thpt", label: "Học sinh THPT" },
+                      { value: "sinhvien", label: "Sinh viên" },
+                      { value: "giaovien", label: "Giáo viên" },
+                    ]}
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="imageSource"
+                  label="Nguồn ảnh"
+                  style={{ minWidth: 260, flex: 1 }}
+                >
+                  <Segmented
+                    block
+                    options={[
+                      { value: "ai", label: "GPT Image 2" },
+                      { value: "web", label: "Web" },
+                    ]}
+                  />
+                </Form.Item>
+              </Space>
 
-            <Form.Item name="slideTemplateSlug" hidden>
-              <Input />
-            </Form.Item>
-            <Form.Item label="Template slide">
-              <Form.Item shouldUpdate noStyle>
-                {({ getFieldValue, setFieldValue }) => {
-                  const selectedSlug = getFieldValue("slideTemplateSlug") || "daisy-days";
-                  return (
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))",
-                        gap: 12,
-                        maxHeight: 420,
-                        overflowY: "auto",
-                        paddingRight: 4,
-                      }}
-                    >
-                      {templatesLoading && <div style={{ color: "#94a3b8", padding: 12 }}>Dang tai template preview...</div>}
-                      {!templatesLoading && templatesError && <div style={{ color: "#fca5a5", padding: 12 }}>{templatesError}</div>}
-                      {!templatesLoading && !templatesError && slideTemplates.length === 0 && (
-                        <div style={{ color: "#94a3b8", padding: 12 }}>Chua co template preview.</div>
-                      )}
-                      {!templatesLoading && slideTemplates.map((template) => {
-                        const selected = selectedSlug === template.slug;
-                        const previewUrl = template.preview_urls?.[0];
-                        return (
-                          <Card
-                            key={template.slug}
-                            hoverable
-                            onClick={() => setFieldValue("slideTemplateSlug", template.slug)}
-                            styles={{ body: { padding: 12 } }}
-                            style={{
-                              borderRadius: 8,
-                              border: selected ? "2px solid #4f46e5" : "1px solid rgba(15,23,42,.14)",
-                              background: selected ? "#eef2ff" : "#ffffff",
-                              overflow: "hidden",
-                              boxShadow: selected ? "0 10px 30px rgba(79,70,229,.16)" : "0 8px 22px rgba(15,23,42,.08)",
-                            }}
-                            cover={
-                              <img
-                                src={previewUrl || templateFallbackPreview(template)}
-                                alt={template.name}
-                                onError={(event) => {
-                                  event.currentTarget.onerror = null;
-                                  event.currentTarget.src = templateFallbackPreview(template);
-                                }}
-                                style={{ width: "100%", aspectRatio: "16 / 10", objectFit: "cover", background: "#f8fafc" }}
-                              />
-                            }
-                          >
-                            <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-                              <div style={{ minWidth: 0 }}>
-                                <div style={{ fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                  {template.name}
-                                </div>
-                                <div style={{ fontSize: 12, color: "#475569", minHeight: 52, lineHeight: 1.4, marginTop: 4 }}>
-                                  {template.tagline}
-                                </div>
-                              </div>
-                              {selected && <Check size={18} color="#4f46e5" />}
-                            </div>
-                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-                              {[template.scheme, template.density].filter(Boolean).map((tag) => (
-                                <span key={tag} style={{ fontSize: 11, color: "#334155", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 999, padding: "2px 7px" }}>
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                            <Button
-                              size="small"
-                              icon={<Eye size={14} />}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setPreviewTemplate(template);
-                              }}
-                              style={{ marginTop: 10, width: "100%", borderRadius: 6 }}
-                            >
-                              Xem preview
-                            </Button>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  );
-                }}
+              <Form.Item name="slideTemplateSlug" hidden>
+                <Input />
               </Form.Item>
-            </Form.Item>
+              <Form.Item label="Template slide">
+                <Form.Item shouldUpdate noStyle>
+                  {({ getFieldValue, setFieldValue }) => {
+                    const selectedSlug =
+                      getFieldValue("slideTemplateSlug") || "daisy-days";
+                    return (
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns:
+                            "repeat(auto-fill, minmax(190px, 1fr))",
+                          gap: 12,
+                          maxHeight: 420,
+                          overflowY: "auto",
+                          paddingRight: 4,
+                        }}
+                      >
+                        {templatesLoading && (
+                          <div style={{ color: "#94a3b8", padding: 12 }}>
+                            Dang tai template preview...
+                          </div>
+                        )}
+                        {!templatesLoading && templatesError && (
+                          <div style={{ color: "#fca5a5", padding: 12 }}>
+                            {templatesError}
+                          </div>
+                        )}
+                        {!templatesLoading &&
+                          !templatesError &&
+                          slideTemplates.length === 0 && (
+                            <div style={{ color: "#94a3b8", padding: 12 }}>
+                              Chua co template preview.
+                            </div>
+                          )}
+                        {!templatesLoading &&
+                          slideTemplates.map((template) => {
+                            const selected = selectedSlug === template.slug;
+                            const previewUrl = template.preview_urls?.[0];
+                            return (
+                              <Card
+                                key={template.slug}
+                                hoverable
+                                onClick={() =>
+                                  setFieldValue(
+                                    "slideTemplateSlug",
+                                    template.slug,
+                                  )
+                                }
+                                styles={{ body: { padding: 12 } }}
+                                style={{
+                                  borderRadius: 8,
+                                  border: selected
+                                    ? "2px solid #4f46e5"
+                                    : "1px solid rgba(15,23,42,.14)",
+                                  background: selected ? "#eef2ff" : "#ffffff",
+                                  overflow: "hidden",
+                                  boxShadow: selected
+                                    ? "0 10px 30px rgba(79,70,229,.16)"
+                                    : "0 8px 22px rgba(15,23,42,.08)",
+                                }}
+                                cover={
+                                  <img
+                                    src={
+                                      previewUrl ||
+                                      templateFallbackPreview(template)
+                                    }
+                                    alt={template.name}
+                                    onError={(event) => {
+                                      event.currentTarget.onerror = null;
+                                      event.currentTarget.src =
+                                        templateFallbackPreview(template);
+                                    }}
+                                    style={{
+                                      width: "100%",
+                                      aspectRatio: "16 / 10",
+                                      objectFit: "cover",
+                                      background: "#f8fafc",
+                                    }}
+                                  />
+                                }
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    gap: 8,
+                                  }}
+                                >
+                                  <div style={{ minWidth: 0 }}>
+                                    <div
+                                      style={{
+                                        fontWeight: 800,
+                                        color: "#111827",
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                      }}
+                                    >
+                                      {template.name}
+                                    </div>
+                                    <div
+                                      style={{
+                                        fontSize: 12,
+                                        color: "#475569",
+                                        minHeight: 52,
+                                        lineHeight: 1.4,
+                                        marginTop: 4,
+                                      }}
+                                    >
+                                      {template.tagline}
+                                    </div>
+                                  </div>
+                                  {selected && (
+                                    <Check size={18} color="#4f46e5" />
+                                  )}
+                                </div>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    gap: 6,
+                                    flexWrap: "wrap",
+                                    marginTop: 8,
+                                  }}
+                                >
+                                  {[template.scheme, template.density]
+                                    .filter(Boolean)
+                                    .map((tag) => (
+                                      <span
+                                        key={tag}
+                                        style={{
+                                          fontSize: 11,
+                                          color: "#334155",
+                                          background: "#f1f5f9",
+                                          border: "1px solid #e2e8f0",
+                                          borderRadius: 999,
+                                          padding: "2px 7px",
+                                        }}
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                </div>
+                                <Button
+                                  size="small"
+                                  icon={<Eye size={14} />}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setPreviewTemplate(template);
+                                  }}
+                                  style={{
+                                    marginTop: 10,
+                                    width: "100%",
+                                    borderRadius: 6,
+                                  }}
+                                >
+                                  Xem preview
+                                </Button>
+                              </Card>
+                            );
+                          })}
+                      </div>
+                    );
+                  }}
+                </Form.Item>
+              </Form.Item>
             </>
           )}
 
@@ -657,39 +825,74 @@ export default function CenterPanel() {
                               ) : null
                             }
                           </Form.Item>
-
                         </Space>
-                        <Form.Item initialValue="auto" name="animationStyle" label="Animation minh hoạ" tooltip="AI sẽ tạo animation giải thích khái niệm theo phong cách này. Chỉ animation hoạt động đúng mới được hiển thị.">
+                        <Form.Item
+                          initialValue="auto"
+                          name="animationStyle"
+                          label="Animation minh hoạ"
+                          tooltip="AI sẽ tạo animation giải thích khái niệm theo phong cách này. Chỉ animation hoạt động đúng mới được hiển thị."
+                        >
                           <Select
                             options={[
                               { value: "none", label: "Không có animation" },
                               { value: "auto", label: "Tự động chọn phù hợp" },
-                              { value: "science-sim", label: "🔬 Mô phỏng khoa học (sóng, lực, phân tử)" },
-                              { value: "diagram-draw", label: "📊 Vẽ biểu đồ / sơ đồ" },
-                              { value: "timeline", label: "📅 Timeline / Tiến trình" },
-                              { value: "mind-map", label: "🧠 Mind-map mở rộng" },
+                              {
+                                value: "science-sim",
+                                label:
+                                  "🔬 Mô phỏng khoa học (sóng, lực, phân tử)",
+                              },
+                              {
+                                value: "diagram-draw",
+                                label: "📊 Vẽ biểu đồ / sơ đồ",
+                              },
+                              {
+                                value: "timeline",
+                                label: "📅 Timeline / Tiến trình",
+                              },
+                              {
+                                value: "mind-map",
+                                label: "🧠 Mind-map mở rộng",
+                              },
                             ]}
                           />
                         </Form.Item>
-                        <Form.Item name="interactionMode" label="Chế độ tương tác">
+                        <Form.Item
+                          name="interactionMode"
+                          label="Chế độ tương tác"
+                        >
                           <Select
                             options={[
-                              { value: "after-each-section", label: "Sau mỗi phần" },
-                              { value: "after-2-3-sections", label: "Sau 2-3 phần" },
+                              {
+                                value: "after-each-section",
+                                label: "Sau mỗi phần",
+                              },
+                              {
+                                value: "after-2-3-sections",
+                                label: "Sau 2-3 phần",
+                              },
                               { value: "end-only", label: "Cuối bài" },
                             ]}
                           />
                         </Form.Item>
-                        <Form.Item name="interactionTypes" label="Loại tương tác">
+                        <Form.Item
+                          name="interactionTypes"
+                          label="Loại tương tác"
+                        >
                           <Select
                             mode="multiple"
                             maxTagCount="responsive"
                             options={[
-                              { value: "mcq-checkpoint", label: "Trắc nghiệm nhanh" },
+                              {
+                                value: "mcq-checkpoint",
+                                label: "Trắc nghiệm nhanh",
+                              },
                               { value: "fill-blank", label: "Điền chỗ trống" },
                               { value: "true-false", label: "Đúng / Sai" },
                               { value: "drag-drop", label: "Kéo thả ghép đôi" },
-                              { value: "scenario", label: "Tình huống thực tế" },
+                              {
+                                value: "scenario",
+                                label: "Tình huống thực tế",
+                              },
                             ]}
                           />
                         </Form.Item>
@@ -698,16 +901,27 @@ export default function CenterPanel() {
 
                     {actionType === "summary" && (
                       <Space style={{ width: "100%" }} size={12} wrap>
-                        <Form.Item name="format" label="Định dạng" style={{ minWidth: 180, flex: 1 }}>
+                        <Form.Item
+                          name="format"
+                          label="Định dạng"
+                          style={{ minWidth: 180, flex: 1 }}
+                        >
                           <Select
                             options={[
                               { value: "bullet", label: "Bullet points" },
                               { value: "outline", label: "Dàn ý" },
-                              { value: "teaching-note", label: "Ghi chú giảng dạy" },
+                              {
+                                value: "teaching-note",
+                                label: "Ghi chú giảng dạy",
+                              },
                             ]}
                           />
                         </Form.Item>
-                        <Form.Item name="length" label="Độ dài" style={{ minWidth: 180, flex: 1 }}>
+                        <Form.Item
+                          name="length"
+                          label="Độ dài"
+                          style={{ minWidth: 180, flex: 1 }}
+                        >
                           <Select
                             options={[
                               { value: "short", label: "Ngắn" },
@@ -721,10 +935,22 @@ export default function CenterPanel() {
 
                     {actionType === "question" && (
                       <Space style={{ width: "100%" }} size={12} wrap>
-                        <Form.Item name="questionCount" label="Số câu hỏi" style={{ minWidth: 160, flex: 1 }}>
-                          <InputNumber min={3} max={20} style={{ width: "100%" }} />
+                        <Form.Item
+                          name="questionCount"
+                          label="Số câu hỏi"
+                          style={{ minWidth: 160, flex: 1 }}
+                        >
+                          <InputNumber
+                            min={3}
+                            max={20}
+                            style={{ width: "100%" }}
+                          />
                         </Form.Item>
-                        <Form.Item name="difficulty" label="Độ khó" style={{ minWidth: 180, flex: 1 }}>
+                        <Form.Item
+                          name="difficulty"
+                          label="Độ khó"
+                          style={{ minWidth: 180, flex: 1 }}
+                        >
                           <Select
                             options={[
                               { value: "easy", label: "Dễ" },
@@ -734,22 +960,43 @@ export default function CenterPanel() {
                             ]}
                           />
                         </Form.Item>
-                        <Form.Item name="bloomLevel" label="Bloom" style={{ minWidth: 180, flex: 1 }}>
+                        <Form.Item
+                          name="bloomLevel"
+                          label="Bloom"
+                          style={{ minWidth: 180, flex: 1 }}
+                        >
                           <Select
                             options={[
-                              { value: "remember-understand", label: "Nhớ / Hiểu" },
-                              { value: "apply-analyze", label: "Vận dụng / Phân tích" },
-                              { value: "evaluate-create", label: "Đánh giá / Sáng tạo" },
+                              {
+                                value: "remember-understand",
+                                label: "Nhớ / Hiểu",
+                              },
+                              {
+                                value: "apply-analyze",
+                                label: "Vận dụng / Phân tích",
+                              },
+                              {
+                                value: "evaluate-create",
+                                label: "Đánh giá / Sáng tạo",
+                              },
                               { value: "mixed", label: "Trộn Bloom" },
                             ]}
                           />
                         </Form.Item>
-                        <Form.Item name="quizTheme" label="Giao diện Quiz" style={{ minWidth: 200, flex: 1 }} tooltip="Trang quiz Quizlet-style được tạo ra sau khi generate">
+                        <Form.Item
+                          name="quizTheme"
+                          label="Giao diện Quiz"
+                          style={{ minWidth: 200, flex: 1 }}
+                          tooltip="Trang quiz Quizlet-style được tạo ra sau khi generate"
+                        >
                           <Select
                             options={[
                               { value: "modern-dark", label: "🌙 Modern Dark" },
                               { value: "clean-light", label: "☀️ Clean Light" },
-                              { value: "playful", label: "🎨 Playful (màu sắc)" },
+                              {
+                                value: "playful",
+                                label: "🎨 Playful (màu sắc)",
+                              },
                             ]}
                           />
                         </Form.Item>
@@ -764,8 +1011,8 @@ export default function CenterPanel() {
         <div
           className="mt-2 pt-3 text-xs"
           style={{
-            borderTop: '1px solid var(--color-border-subtle)',
-            color: 'var(--color-text-muted)',
+            borderTop: "1px solid var(--color-border-subtle)",
+            color: "var(--color-text-muted)",
           }}
         >
           💡 AI sẽ tự tổng hợp các lựa chọn của bạn thành prompt tối ưu nhất.
@@ -782,9 +1029,17 @@ export default function CenterPanel() {
       >
         {previewTemplate && (
           <div>
-            <p style={{ color: "#94a3b8", marginTop: 0 }}>{previewTemplate.tagline}</p>
+            <p style={{ color: "#94a3b8", marginTop: 0 }}>
+              {previewTemplate.tagline}
+            </p>
             <div style={{ position: "relative" }}>
-              <Carousel ref={previewCarouselRef} autoplay autoplaySpeed={2600} dots dotPosition="bottom">
+              <Carousel
+                ref={previewCarouselRef}
+                autoplay
+                autoplaySpeed={2600}
+                dots
+                dotPosition="bottom"
+              >
                 {previewUrls.map((url, index) => (
                   <div key={`${previewTemplate.slug}-${index}`}>
                     <div style={{ padding: "0 6px 24px" }}>
@@ -793,7 +1048,8 @@ export default function CenterPanel() {
                         alt={`${previewTemplate.name} preview ${index + 1}`}
                         onError={(event) => {
                           event.currentTarget.onerror = null;
-                          event.currentTarget.src = templateFallbackPreview(previewTemplate);
+                          event.currentTarget.src =
+                            templateFallbackPreview(previewTemplate);
                         }}
                         style={{
                           width: "100%",
@@ -845,12 +1101,21 @@ export default function CenterPanel() {
                 </>
               )}
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: 16,
+              }}
+            >
               <Button
                 type="primary"
                 icon={<Check size={15} />}
                 onClick={() => {
-                  actionForm.setFieldValue("slideTemplateSlug", previewTemplate.slug);
+                  actionForm.setFieldValue(
+                    "slideTemplateSlug",
+                    previewTemplate.slug,
+                  );
                   setPreviewTemplate(null);
                 }}
               >
@@ -865,8 +1130,15 @@ export default function CenterPanel() {
       {parsedUpload && (
         <Suspense
           fallback={
-            <div className="absolute inset-0 z-20 flex items-center justify-center" style={{ background: "var(--color-bg-elevated)" }}>
-              <Loader2 size={24} className="animate-spin" style={{ color: "var(--color-ai-accent)" }} />
+            <div
+              className="absolute inset-0 z-20 flex items-center justify-center"
+              style={{ background: "var(--color-bg-elevated)" }}
+            >
+              <Loader2
+                size={24}
+                className="animate-spin"
+                style={{ color: "var(--color-ai-accent)" }}
+              />
             </div>
           }
         >
@@ -879,7 +1151,10 @@ export default function CenterPanel() {
       )}
 
       {/* ── Messages area ── */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4" data-tour="chat">
+      <div
+        className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4"
+        data-tour="chat"
+      >
         {messages.length === 0 && !isGenerating && (
           <div className="empty-state-container">
             <div
@@ -908,11 +1183,11 @@ export default function CenterPanel() {
             </div>
             <h3
               className="text-2xl mb-2"
-              style={{ 
-                fontFamily: "var(--font-display)", 
+              style={{
+                fontFamily: "var(--font-display)",
                 color: "var(--color-text-primary)",
                 fontWeight: 300,
-                letterSpacing: "-0.3px"
+                letterSpacing: "-0.3px",
               }}
             >
               Lumiere AI sẵn sàng hỗ trợ
@@ -921,34 +1196,48 @@ export default function CenterPanel() {
               className="text-sm max-w-xs mb-8"
               style={{ color: "var(--color-text-muted)", lineHeight: 1.6 }}
             >
-              Q/A trực tiếp ở khung chat. Tạo Slide/Summary/Question bằng cấu hình nhanh như NotebookLM + Gamma.
+              Q/A trực tiếp ở khung chat. Tạo Slide/Summary/Question bằng cấu
+              hình nhanh như NotebookLM + Gamma.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl px-4">
-              {ACTION_BUTTONS.map(({ type, label, description, icon: Icon }) => (
-                <Card
-                  key={type}
-                  hoverable
-                  onClick={() => openActionModal(type)}
-                  style={{ 
-                    borderColor: "var(--color-border)", 
-                    textAlign: "left",
-                    borderRadius: "var(--radius-xl)",
-                    background: "var(--color-bg-card)"
-                  }}
-                  styles={{ body: { padding: 20 } }}
-                >
-                  <Space direction="vertical" size={6}>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center mb-2" style={{ background: 'var(--color-surface-strong)' }}>
-                      <Icon size={16} color="var(--color-primary)" />
-                    </div>
-                    <Typography.Text strong style={{ fontSize: 16 }}>{label}</Typography.Text>
-                    <Typography.Text type="secondary" style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
-                      {description}
-                    </Typography.Text>
-                  </Space>
-                </Card>
-              ))}
+              {ACTION_BUTTONS.map(
+                ({ type, label, description, icon: Icon }) => (
+                  <Card
+                    key={type}
+                    hoverable
+                    onClick={() => openActionModal(type)}
+                    style={{
+                      borderColor: "var(--color-border)",
+                      textAlign: "left",
+                      borderRadius: "var(--radius-xl)",
+                      background: "var(--color-bg-card)",
+                    }}
+                    styles={{ body: { padding: 20 } }}
+                  >
+                    <Space direction="vertical" size={6}>
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center mb-2"
+                        style={{ background: "var(--color-surface-strong)" }}
+                      >
+                        <Icon size={16} color="var(--color-primary)" />
+                      </div>
+                      <Typography.Text strong style={{ fontSize: 16 }}>
+                        {label}
+                      </Typography.Text>
+                      <Typography.Text
+                        type="secondary"
+                        style={{
+                          fontSize: 13,
+                          color: "var(--color-text-muted)",
+                        }}
+                      >
+                        {description}
+                      </Typography.Text>
+                    </Space>
+                  </Card>
+                ),
+              )}
             </div>
           </div>
         )}
@@ -963,39 +1252,52 @@ export default function CenterPanel() {
               className={`max-w-[75%] px-4 py-3 text-sm ${msg.role === "user" ? "bubble-user" : "bubble-ai"}`}
             >
               {msg.role === "user" ? (
-                <p>{msg.content}</p>
+                <MarkdownRenderer compact>{msg.content}</MarkdownRenderer>
               ) : (
                 <div>
-                  <div className="markdown-content">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {msg.content}
-                    </ReactMarkdown>
-                  </div>
+                  <MarkdownRenderer compact>{msg.content}</MarkdownRenderer>
 
                   {/* Show inline outputs (questions/slides) */}
                   {msg.outputs?.questions && (
-                    <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
-                      <p className="text-xs font-semibold mb-2" style={{ color: 'var(--color-ai-accent)' }}>
+                    <div
+                      className="mt-3 pt-3"
+                      style={{ borderTop: "1px solid var(--color-border)" }}
+                    >
+                      <p
+                        className="text-xs font-semibold mb-2"
+                        style={{ color: "var(--color-ai-accent)" }}
+                      >
                         📝 Câu hỏi trắc nghiệm ({msg.outputs.questions.length})
                       </p>
                       {msg.outputs.questions.map((q, i) => (
                         <div key={i} className="mb-3 text-xs">
                           <p className="font-medium mb-1">
-                            <span className="opacity-50">Q{i + 1}.</span> {q.question_text}
+                            <span className="opacity-50">Q{i + 1}.</span>{" "}
+                            {q.question_text}
                           </p>
                           <div className="pl-3 space-y-0.5">
                             {q.options?.map((opt, j) => (
                               <p
                                 key={j}
-                                className={j === q.correct_answer ? "font-semibold" : "opacity-70"}
-                                style={j === q.correct_answer ? { color: 'var(--color-ai-accent)' } : {}}
+                                className={
+                                  j === q.correct_answer
+                                    ? "font-semibold"
+                                    : "opacity-70"
+                                }
+                                style={
+                                  j === q.correct_answer
+                                    ? { color: "var(--color-ai-accent)" }
+                                    : {}
+                                }
                               >
                                 {opt} {j === q.correct_answer && "✓"}
                               </p>
                             ))}
                           </div>
                           {q.explanation && (
-                            <p className="pl-3 mt-1 opacity-60 italic">{q.explanation}</p>
+                            <p className="pl-3 mt-1 opacity-60 italic">
+                              {q.explanation}
+                            </p>
                           )}
                         </div>
                       ))}
@@ -1004,26 +1306,43 @@ export default function CenterPanel() {
 
                   {/* Slide output — ưu tiên Reveal.js Editor */}
                   {(msg.outputs?.presentation_id || msg.outputs?.slides) && (
-                    <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+                    <div
+                      className="mt-3 pt-3"
+                      style={{ borderTop: "1px solid var(--color-border)" }}
+                    >
                       {msg.outputs?.presentation_id ? (
                         /* ── Reveal.js Editor button ── */
                         <a
                           href={`/presentations/${msg.outputs.presentation_id}`}
                           style={{
-                            display: 'flex', alignItems: 'center', gap: 10,
-                            padding: '10px 14px', borderRadius: 10,
-                            background: 'linear-gradient(135deg, rgba(124,58,237,0.18), rgba(79,70,229,0.12))',
-                            border: '1px solid rgba(124,58,237,0.5)',
-                            color: '#a78bfa', textDecoration: 'none',
-                            fontSize: 13, fontWeight: 600,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            padding: "10px 14px",
+                            borderRadius: 10,
+                            background:
+                              "linear-gradient(135deg, rgba(124,58,237,0.18), rgba(79,70,229,0.12))",
+                            border: "1px solid rgba(124,58,237,0.5)",
+                            color: "#a78bfa",
+                            textDecoration: "none",
+                            fontSize: 13,
+                            fontWeight: 600,
                           }}
                         >
                           <span style={{ fontSize: 16 }}>🎯</span>
                           <div style={{ flex: 1 }}>
                             <div>Mở Reveal.js Editor</div>
                             {msg.outputs.slides?.length > 0 && (
-                              <div style={{ fontSize: 11, color: '#7c3aed', fontWeight: 400, marginTop: 2 }}>
-                                {msg.outputs.slides.length} slides · WYSIWYG · Export PDF/PPTX
+                              <div
+                                style={{
+                                  fontSize: 11,
+                                  color: "#7c3aed",
+                                  fontWeight: 400,
+                                  marginTop: 2,
+                                }}
+                              >
+                                {msg.outputs.slides.length} slides · WYSIWYG ·
+                                Export PDF/PPTX
                               </div>
                             )}
                           </div>
@@ -1032,16 +1351,27 @@ export default function CenterPanel() {
                       ) : (
                         /* ── Fallback: slide list (khi không có presentation_id) ── */
                         <>
-                          <p className="text-xs font-semibold mb-2" style={{ color: 'var(--color-ai-accent)' }}>
+                          <p
+                            className="text-xs font-semibold mb-2"
+                            style={{ color: "var(--color-ai-accent)" }}
+                          >
                             📊 Slide bài giảng ({msg.outputs.slides.length})
                           </p>
                           {msg.outputs.slides.slice(0, 3).map((s, i) => (
-                            <div key={i} className="mb-1 p-2 rounded-lg text-xs" style={{ background: 'var(--color-bg-elevated)' }}>
-                              <p className="font-semibold">{s.slide_number}. {s.title}</p>
+                            <div
+                              key={i}
+                              className="mb-1 p-2 rounded-lg text-xs"
+                              style={{ background: "var(--color-bg-elevated)" }}
+                            >
+                              <p className="font-semibold">
+                                {s.slide_number}. {s.title}
+                              </p>
                             </div>
                           ))}
                           {msg.outputs.slides.length > 3 && (
-                            <p className="text-xs opacity-50">+{msg.outputs.slides.length - 3} slides nữa...</p>
+                            <p className="text-xs opacity-50">
+                              +{msg.outputs.slides.length - 3} slides nữa...
+                            </p>
                           )}
                         </>
                       )}
@@ -1056,7 +1386,10 @@ export default function CenterPanel() {
                   )}
                   {msg.cot_log?.length > 0 && (
                     <div className="mt-3">
-                      <ActivityTracePanel steps={msg.cot_log} defaultCollapsed />
+                      <ActivityTracePanel
+                        steps={msg.cot_log}
+                        defaultCollapsed
+                      />
                     </div>
                   )}
                 </div>
@@ -1070,7 +1403,11 @@ export default function CenterPanel() {
           <div className="flex flex-col gap-2 fade-in">
             {/* Agent progress steps */}
             {agentProgress.length > 0 && (
-              <ActivityTracePanel steps={agentProgress} defaultCollapsed={false} isLive />
+              <ActivityTracePanel
+                steps={agentProgress}
+                defaultCollapsed={false}
+                isLive
+              />
             )}
 
             {/* Typing indicator */}
@@ -1092,6 +1429,7 @@ export default function CenterPanel() {
       {/* ── Chat Input ── */}
       <div
         className="shrink-0 border-t glass-panel relative z-10"
+        data-tour="settings"
         style={{ borderColor: "var(--color-border)" }}
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
@@ -1109,10 +1447,14 @@ export default function CenterPanel() {
                 border: "2px dashed var(--color-primary)",
               }}
             >
-              <div className="flex flex-col items-center justify-center gap-2"
-                   style={{ color: "var(--color-primary)" }}>
+              <div
+                className="flex flex-col items-center justify-center gap-2"
+                style={{ color: "var(--color-primary)" }}
+              >
                 <UploadCloud size={32} />
-                <span className="font-semibold text-sm">Thả tài liệu vào đây</span>
+                <span className="font-semibold text-sm">
+                  Thả tài liệu vào đây
+                </span>
               </div>
             </div>
           )}
@@ -1126,19 +1468,19 @@ export default function CenterPanel() {
                 disabled={isGenerating || isUploading}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all duration-150"
                 style={{
-                  background: 'var(--color-bg-card)',
-                  borderColor: 'var(--color-border)',
-                  color: 'var(--color-text-secondary)',
+                  background: "var(--color-bg-card)",
+                  borderColor: "var(--color-border)",
+                  color: "var(--color-text-secondary)",
                 }}
                 onMouseEnter={(e) => {
                   if (!isGenerating && !isUploading) {
-                    e.currentTarget.style.borderColor = 'var(--color-primary)';
-                    e.currentTarget.style.color = 'var(--color-primary)';
+                    e.currentTarget.style.borderColor = "var(--color-primary)";
+                    e.currentTarget.style.color = "var(--color-primary)";
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)';
-                  e.currentTarget.style.color = 'var(--color-text-secondary)';
+                  e.currentTarget.style.borderColor = "var(--color-border)";
+                  e.currentTarget.style.color = "var(--color-text-secondary)";
                 }}
               >
                 <Icon size={12} />
@@ -1161,7 +1503,8 @@ export default function CenterPanel() {
               accept=".pdf,.docx,.pptx,.xlsx,.txt,.md"
               className="hidden"
               onChange={(e) => {
-                if (e.target.files.length > 0) handleFileUpload(e.target.files[0]);
+                if (e.target.files.length > 0)
+                  handleFileUpload(e.target.files[0]);
                 e.target.value = null;
               }}
             />
@@ -1172,11 +1515,19 @@ export default function CenterPanel() {
               disabled={isUploading || isGenerating}
               className={`shrink-0 w-8 h-8 flex items-center justify-center cursor-pointer transition-colors duration-150 rounded-full hover:bg-zinc-100 ${isUploading ? "opacity-50" : ""}`}
               style={{ color: "var(--color-text-muted)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-primary)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-text-muted)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--color-primary)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--color-text-muted)")
+              }
               title="Upload tài liệu"
             >
-              {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Paperclip size={18} />}
+              {isUploading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Paperclip size={18} />
+              )}
             </button>
 
             {/* Input textarea */}
@@ -1186,9 +1537,11 @@ export default function CenterPanel() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={
-                isUploading ? "Đang xử lý tài liệu..." :
-                isGenerating ? "AI đang xử lý..." :
-                "Nhập câu hỏi hoặc kéo thả tài liệu..."
+                isUploading
+                  ? "Đang xử lý tài liệu..."
+                  : isGenerating
+                    ? "AI đang xử lý..."
+                    : "Nhập câu hỏi hoặc kéo thả tài liệu..."
               }
               rows={1}
               disabled={isGenerating || isUploading}
@@ -1197,11 +1550,12 @@ export default function CenterPanel() {
                 color: "var(--color-text-primary)",
                 maxHeight: "120px",
                 minHeight: "28px",
-                fontFamily: 'var(--font-body)',
+                fontFamily: "var(--font-body)",
               }}
               onInput={(e) => {
                 e.target.style.height = "auto";
-                e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+                e.target.style.height =
+                  Math.min(e.target.scrollHeight, 120) + "px";
               }}
             />
 
@@ -1211,15 +1565,27 @@ export default function CenterPanel() {
               disabled={!input.trim() || isGenerating || isUploading}
               className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ background: "var(--color-primary)", color: "white" }}
-              onMouseEnter={(e) => !isGenerating && !isUploading && (e.currentTarget.style.opacity = "0.8")}
+              onMouseEnter={(e) =>
+                !isGenerating &&
+                !isUploading &&
+                (e.currentTarget.style.opacity = "0.8")
+              }
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >
-              {isGenerating ? <Loader2 size={14} className="animate-spin" /> : <Send size={16} />}
+              {isGenerating ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Send size={16} />
+              )}
             </button>
           </div>
-          <Flex justify="center" style={{ marginTop: '4px' }}>
-            <Typography.Text type="secondary" style={{ fontSize: '11px', lineHeight: 1 }}>
-              Enter để gửi · Shift+Enter xuống dòng · {isUploading ? "Đang Upload…" : "Kéo thả file"}
+          <Flex justify="center" style={{ marginTop: "4px" }}>
+            <Typography.Text
+              type="secondary"
+              style={{ fontSize: "11px", lineHeight: 1 }}
+            >
+              Enter để gửi · Shift+Enter xuống dòng ·{" "}
+              {isUploading ? "Đang Upload…" : "Kéo thả file"}
             </Typography.Text>
           </Flex>
         </div>

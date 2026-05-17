@@ -5,6 +5,7 @@
 import axios from 'axios';
 import { store } from '../store/store.js';
 import { logout } from '../store/authSlice.js';
+import { getStoredToken } from './tokenStorage.js';
 
 // Lấy link backend từ VITE_BE_BASE_URL, mặc định fallback về localhost:3000
 const API_BASE_URL = import.meta.env.VITE_BE_BASE_URL || 'http://localhost:3000';
@@ -17,7 +18,7 @@ const apiClient = axios.create({
 
 // ── Request interceptor: attach JWT token ──────────────────
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('lumiere_token') || sessionStorage.getItem('lumiere_token');
+  const token = getStoredToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

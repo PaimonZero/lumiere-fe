@@ -41,10 +41,10 @@ import {
   Users,
 } from "lucide-react";
 import { adminService } from "../../services/adminService";
+import MarkdownEditor from "../../components/common/MarkdownEditor.jsx";
 
 const { Content, Sider } = Layout;
 const { Text, Title } = Typography;
-const { TextArea } = Input;
 const { Dragger } = Upload;
 const { useBreakpoint } = Grid;
 
@@ -111,6 +111,7 @@ function getDocumentMarkdown(document) {
 function getKnowledgeFormValues(document) {
   return {
     title: document?.title || "",
+    filename: document?.filename || "",
     markdown: getDocumentMarkdown(document),
   };
 }
@@ -334,6 +335,7 @@ export default function AdminPage() {
     try {
       await adminService.updateSystemDocument(editingDocument.id, {
         title: values.title,
+        filename: values.filename,
         markdown_content: values.markdown,
       });
       messageApi.success("Đã cập nhật và reindex tài liệu.");
@@ -892,9 +894,6 @@ export default function AdminPage() {
             </p>
           </Dragger>
 
-          <Form.Item name="filename" hidden>
-            <Input />
-          </Form.Item>
           <Form.Item name="file_key" hidden>
             <Input />
           </Form.Item>
@@ -907,11 +906,21 @@ export default function AdminPage() {
             <Input placeholder="Tên tài liệu" />
           </Form.Item>
           <Form.Item
+            name="filename"
+            label="Tên file"
+            rules={[{ required: true, message: "Vui lòng nhập tên file." }]}
+          >
+            <Input placeholder="ten-file.pdf" />
+          </Form.Item>
+          <Form.Item
             name="markdown"
             label="Markdown preview"
             rules={[{ required: true, message: "Vui lòng parse hoặc nhập Markdown." }]}
           >
-            <TextArea rows={isMobile ? 10 : 14} placeholder="Nội dung Markdown sau khi parse..." />
+            <MarkdownEditor
+              height={isMobile ? 360 : 500}
+              placeholder="Noi dung Markdown sau khi parse..."
+            />
           </Form.Item>
         </Form>
       </Modal>
@@ -956,11 +965,21 @@ export default function AdminPage() {
             <Input />
           </Form.Item>
           <Form.Item
+            name="filename"
+            label="Tên file"
+            rules={[{ required: true, message: "Vui lòng nhập tên file." }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
             name="markdown"
             label="Markdown"
             rules={[{ required: true, message: "Vui lòng nhập Markdown." }]}
           >
-            <TextArea rows={isMobile ? 12 : 18} />
+            <MarkdownEditor
+              height={isMobile ? 420 : 580}
+              placeholder="Noi dung Markdown tai lieu..."
+            />
           </Form.Item>
         </Form>
       </Modal>

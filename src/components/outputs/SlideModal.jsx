@@ -8,11 +8,10 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Alert, Button, Input, Modal, Space, Spin, Tooltip, Typography, message } from 'antd';
 import { ExternalLink, RefreshCw, Edit3, Eye, ChevronLeft, ChevronRight, Save } from 'lucide-react';
+import MarkdownEditor from '../common/MarkdownEditor.jsx';
 // import SlidevSharePanel from './SlidevSharePanel.jsx';
 // import ThemeSelector from './ThemeSelector.jsx';
 // import { rebuildSlide } from '../../services/slideService.js';
-
-const { TextArea } = Input;
 
 // ── Parse Slidev markdown into slide sections ──────────────────
 // Slidev uses "---" as slide separator.
@@ -142,12 +141,12 @@ function SlideContentEditor({ slides, onSlidesChange }) {
         >
           Nội dung slide
         </Typography.Text>
-        <TextArea
+        <MarkdownEditor
           value={slide.content || ''}
-          onChange={(e) => updateField('content', e.target.value)}
+          onChange={(value) => updateField('content', value)}
           placeholder="Nhập nội dung slide (bullet points, text, v.v.)..."
-          style={{ borderRadius: 8 }}
-          autoSize={{ minRows: 8, maxRows: 18 }}
+          height={320}
+          preview="live"
         />
       </div>
 

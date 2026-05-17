@@ -3,26 +3,11 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "../services/authService";
-
-const TOKEN_KEY = "lumiere_token";
-
-const getStoredToken = () =>
-  localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
-
-const saveToken = (token, rememberMe = true) => {
-  if (rememberMe) {
-    localStorage.setItem(TOKEN_KEY, token);
-    sessionStorage.removeItem(TOKEN_KEY);
-    return;
-  }
-  sessionStorage.setItem(TOKEN_KEY, token);
-  localStorage.removeItem(TOKEN_KEY);
-};
-
-const clearStoredToken = () => {
-  localStorage.removeItem(TOKEN_KEY);
-  sessionStorage.removeItem(TOKEN_KEY);
-};
+import {
+  clearStoredToken,
+  getStoredToken,
+  saveToken,
+} from "../services/tokenStorage";
 
 const getApiErrorMessage = (err, fallback) =>
   err.response?.data?.detail ||
@@ -65,10 +50,12 @@ export const register = createAsyncThunk(
 
 export const googleLogin = createAsyncThunk(
   "auth/googleLogin",
-  async (credential, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
+      const credential = typeof payload === "string" ? payload : payload?.credential;
+      const rememberMe = typeof payload === "object" ? payload?.rememberMe : false;
       const { data } = await authService.googleLogin(credential);
-      saveToken(data.access_token);
+      saveToken(data.access_token, rememberMe);
       return data;
     } catch (err) {
       return rejectWithValue(

@@ -4,14 +4,15 @@
 import { useState } from 'react';
 import { Modal, Typography, Button, Space, Dropdown, Tooltip, message as antMessage } from 'antd';
 import { DownloadOutlined, FileMarkdownOutlined, FilePdfOutlined, CopyOutlined } from '@ant-design/icons';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import apiClient from '../../services/apiClient';
+import MarkdownRenderer from '../common/MarkdownRenderer.jsx';
+import { repairMojibake, safeDownloadFilename } from '../../utils/textEncoding.js';
 
 const { Text } = Typography;
 
 export default function ContentModal({ open, onClose, title, content }) {
   const [pdfLoading, setPdfLoading] = useState(false);
+  const displayTitle = repairMojibake(title || 'Tóm tắt bài học');
 
   // ── Download as .md file ──
   const handleDownloadMd = () => {
@@ -20,7 +21,7 @@ export default function ContentModal({ open, onClose, title, content }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${_safeFilename(title)}.md`;
+    a.download = `${_safeFilename(displayTitle)}.md`;
     a.click();
     URL.revokeObjectURL(url);
     antMessage.success('Đã tải file Markdown');
@@ -33,21 +34,20 @@ export default function ContentModal({ open, onClose, title, content }) {
     try {
       const res = await apiClient.post(
         '/api/export/summary/pdf',
-        { markdown: content, title: title || 'Tóm tắt bài học' },
+        { markdown: content, title: displayTitle },
         { responseType: 'blob' }
       );
       const blob = new Blob([res.data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${_safeFilename(title)}.pdf`;
+      a.download = `${_safeFilename(displayTitle)}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
       antMessage.success('Đã tải file PDF');
     } catch (err) {
-      const msg = err.response?.status === 503
-        ? 'Server chưa cài weasyprint. Tải .md thay thế.'
-        : 'Không thể xuất PDF. Vui lòng thử lại.';
+      const msg = err.response?.data?.error?.message ||
+        'Khong the xuat PDF. Vui long kiem tra Chromium/Playwright tren server.';
       antMessage.error(msg);
     } finally {
       setPdfLoading(false);
@@ -87,7 +87,7 @@ export default function ContentModal({ open, onClose, title, content }) {
       width={760}
       title={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 32 }}>
-          <Text strong style={{ fontSize: 15 }}>{title || 'Tóm tắt bài học'}</Text>
+          <Text strong style={{ fontSize: 15 }}>{displayTitle}</Text>
           <Space size={8}>
             <Tooltip title="Copy nội dung">
               <Button
@@ -120,9 +120,7 @@ export default function ContentModal({ open, onClose, title, content }) {
       }}
     >
       {content ? (
-        <div className="markdown-content" style={{ lineHeight: 1.8 }}>
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-        </div>
+        <MarkdownRenderer style={{ lineHeight: 1.8 }}>{content}</MarkdownRenderer>
       ) : (
         <Text type="secondary">Không có nội dung để hiển thị.</Text>
       )}
@@ -131,10 +129,5 @@ export default function ContentModal({ open, onClose, title, content }) {
 }
 
 function _safeFilename(title) {
-  if (!title) return 'tom-tat';
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\u00c0-\u024f\u1e00-\u1eff\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .slice(0, 50) || 'tom-tat';
+  return safeDownloadFilename(title, 'tom-tat').toLowerCase();
 }

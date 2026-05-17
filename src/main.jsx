@@ -8,6 +8,9 @@ import { BrowserRouter } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { store } from "./store/store.js";
 import App from "./App.jsx";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
+import "katex/dist/katex.min.css";
 import "./index.css";
 import ThemeConfigProvider from "./components/common/ThemeConfigProvider.jsx";
 

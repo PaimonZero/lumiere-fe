@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { X, FileText, Loader2, Trash2, Save } from "lucide-react";
-import MDEditor from "@uiw/react-md-editor";
-import { message as antMessage } from "antd";
+import { Input, message as antMessage } from "antd";
 import useTheme from "../../hooks/useTheme.js";
+import MarkdownEditor from "../common/MarkdownEditor.jsx";
 
 import {
   clearActiveContent,
@@ -14,10 +14,10 @@ import {
 
 export default function WikiEditor() {
   const dispatch = useDispatch();
-  const { theme, isLight } = useTheme();
+  const { isLight } = useTheme();
   const activeContent = useSelector(selectWikiActiveContent);
   const [markdown, setMarkdown] = useState("");
-  const [title, setTitle] = useState("");
+  const [filename, setFilename] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   // Track which entry ID is currently loaded to avoid overwriting edits on re-render
   const [loadedEntryId, setLoadedEntryId] = useState(null);
@@ -26,7 +26,7 @@ export default function WikiEditor() {
     // Only reset editor content when a DIFFERENT entry is opened, not on every activeContent update
     if (activeContent && activeContent.id !== loadedEntryId) {
       setMarkdown(activeContent.markdown_content || "");
-      setTitle(activeContent.filename || "");
+      setFilename(activeContent.filename || "");
       setLoadedEntryId(activeContent.id);
     }
   }, [activeContent, loadedEntryId]);
@@ -51,10 +51,20 @@ export default function WikiEditor() {
 
   const handleSave = async () => {
     if (activeContent) {
+      if (!filename.trim()) {
+        antMessage.warning("Vui long nhap ten file.");
+        return;
+      }
       setIsSaving(true);
       try {
         await dispatch(
-          updateWikiEntry({ id: activeContent.id, data: markdown })
+          updateWikiEntry({
+            id: activeContent.id,
+            data: {
+              filename: filename.trim(),
+              markdown,
+            },
+          })
         ).unwrap();
         // Server returns { success: true, message: "..." } — no document data.
         // Local markdown state is already correct — do NOT reset it.
@@ -90,25 +100,30 @@ export default function WikiEditor() {
       style={{ background: "var(--color-bg-elevated)" }}
     >
       {/* Viewer Header */}
-      <div
-        className="flex items-center justify-between px-6 py-3 shrink-0"
-        style={{ borderColor: "var(--color-border)", borderBottom: '1px solid', minHeight: 64 }}
-      >
-        <div className="flex items-center gap-3 min-w-0">
+      <div className="upload-document-header">
+        <div className="upload-document-title-group">
           <FileText size={20} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
-          <h2
-            className="font-medium text-lg truncate"
-            title={title}
-            style={{ color: "var(--color-text-primary)", maxWidth: 'calc(100vw - 320px)' }}
-          >
-            {title}
-          </h2>
+          <div className="upload-document-title-body">
+            <Input
+              value={filename}
+              onChange={(event) => setFilename(event.target.value)}
+              disabled={isSaving}
+              placeholder="Ten file"
+              title={filename}
+              aria-label="Ten file"
+              className="upload-document-filename-input"
+              style={{
+                color: "var(--color-text-primary)",
+                fontWeight: 600,
+              }}
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="upload-document-actions">
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-4 py-2 rounded-md justify-center text-sm cursor-pointer transition-colors"
+            className="upload-document-primary-button flex items-center gap-2 px-4 py-2 rounded-md justify-center text-sm cursor-pointer transition-colors"
             style={{
               background: "var(--color-ai-accent)",
               color: "white",
@@ -124,7 +139,7 @@ export default function WikiEditor() {
           </button>
 
           <div
-            className="w-px h-6 mx-1"
+            className="upload-document-separator w-px h-6 mx-1"
             style={{ background: "var(--color-border)" }}
           ></div>
 
@@ -153,7 +168,7 @@ export default function WikiEditor() {
       </div>
 
       {/* Editor Body */}
-      <div className="flex-1 overflow-hidden relative" data-color-mode={theme}>
+      <div className="flex-1 overflow-hidden relative">
         {isSaving && (
           <div
             className="absolute inset-0 z-30 flex items-center justify-center backdrop-blur-sm"
@@ -171,12 +186,12 @@ export default function WikiEditor() {
           </div>
         )}
 
-        <MDEditor
+        <MarkdownEditor
           value={markdown}
           onChange={(val) => setMarkdown(val || "")}
           height="100%"
-          visibleDragbar={false}
           preview="live"
+          placeholder="Noi dung Markdown tai lieu..."
         />
       </div>
     </div>

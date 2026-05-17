@@ -15,7 +15,13 @@ import {
 } from "../../store/authSlice.js";
 import { Eye, EyeOff, Loader2, Mail, Lock, User } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
-import apiClient from "../../services/apiClient.js";
+import { authService } from "../../services/authService.js";
+
+const getErrorMessage = (err, fallback) =>
+  err.response?.data?.detail ||
+  err.response?.data?.error?.message ||
+  err.response?.data?.message ||
+  fallback;
 
 // ── Google login button (conditionally rendered) ──────────────
 // Separated to avoid calling useGoogleLogin when client_id is absent
@@ -75,7 +81,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState("login"); // 'login' | 'register' | 'forgot'
   const [forgotStep, setForgotStep] = useState(1); // 1: email, 2: otp + new pass
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
+  const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -117,13 +123,11 @@ export default function LoginPage() {
     setLocalLoading(true);
     try {
       if (forgotStep === 1) {
-        const res = await apiClient.post("/api/auth/forgot-password", {
-          email: form.email,
-        });
+        const res = await authService.forgotPassword(form.email);
         setInfoMessage(res.data.message);
         setForgotStep(2);
       } else {
-        const res = await apiClient.post("/api/auth/reset-password", {
+        const res = await authService.resetPassword({
           email: form.email,
           otp: form.otp,
           new_password: form.password,
@@ -137,7 +141,7 @@ export default function LoginPage() {
         }, 3000);
       }
     } catch (err) {
-      setLocalError(err.response?.data?.detail || "Thao tác thất bại");
+      setLocalError(getErrorMessage(err, "Thao tac that bai"));
     } finally {
       setLocalLoading(false);
     }
@@ -145,7 +149,10 @@ export default function LoginPage() {
 
   const handleGoogleSuccess = async (tokenResponse) => {
     const result = await dispatch(
-      googleLogin(tokenResponse.credential || tokenResponse.access_token),
+      googleLogin({
+        credential: tokenResponse.credential || tokenResponse.access_token,
+        rememberMe,
+      }),
     );
     if (result.type.endsWith("/fulfilled")) navigate("/dashboard");
   };

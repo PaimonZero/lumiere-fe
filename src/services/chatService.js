@@ -4,6 +4,7 @@
  */
 import apiClient from './apiClient';
 import { API_BASE_URL } from './apiClient';
+import { getStoredToken } from './tokenStorage';
 
 export const chatService = {
   /** List all conversations */
@@ -26,16 +27,19 @@ export const chatService = {
    * @param {object} callbacks - { onCoTStep, onChunk, onDone, onError }
    */
   streamChat: async (body, { onCoTStep, onChunk, onDone, onError }) => {
-    const token = localStorage.getItem('lumiere_token');
+    const token = getStoredToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+    };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
 
     // Use fetch for SSE with POST body + auth header
     const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        Accept: 'text/event-stream',
-      },
+      headers,
       body: JSON.stringify(body),
     });
 

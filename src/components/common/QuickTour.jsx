@@ -111,7 +111,9 @@ function computeCardPos(rect, vw, vh) {
 }
 
 export default function QuickTour() {
-  const [isOpen, setIsOpen] = useState(() => !localStorage.getItem("lumiere_tour_completed"));
+  const [isOpen, setIsOpen] = useState(
+    () => !localStorage.getItem("lumiere_tour_completed"),
+  );
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState(null); // target element's bounding rect
   const [pos, setPos] = useState(null); // card { top, left }
@@ -244,9 +246,9 @@ export default function QuickTour() {
           left: pos.left,
           transition:
             "top 0.45s cubic-bezier(.4,0,.2,1), left 0.45s cubic-bezier(.4,0,.2,1)",
-          background: "rgba(15, 23, 42, 0.97)",
-          borderColor: "rgba(99, 102, 241, 0.25)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.45)",
+          background: "var(--color-bg-card)",
+          borderColor: "var(--color-border)",
+          boxShadow: "0 12px 32px rgba(15, 23, 42, 0.2)",
         }}
       >
         {/* Decorative glow */}
@@ -268,7 +270,7 @@ export default function QuickTour() {
                     background:
                       i <= step
                         ? "var(--color-ai-accent)"
-                        : "rgba(255,255,255,0.08)",
+                        : "var(--color-border-subtle)",
                     transition: "width 0.3s, background 0.3s",
                   }}
                 />
@@ -276,7 +278,7 @@ export default function QuickTour() {
             </div>
             <span
               className="text-[10px] font-mono tracking-wider"
-              style={{ color: "rgba(255,255,255,0.25)" }}
+              style={{ color: "var(--color-text-muted-soft)" }}
             >
               {step + 1}/{STEPS.length}
             </span>
@@ -294,12 +296,15 @@ export default function QuickTour() {
               <Icon size={18} />
             </div>
             <div className="min-w-0">
-              <h3 className="text-[15px] font-bold text-white mb-1 leading-snug">
+              <h3
+                className="text-[15px] font-bold mb-1 leading-snug"
+                style={{ color: "var(--color-text-primary)" }}
+              >
                 {STEPS[step].title}
               </h3>
               <p
                 className="text-[13px] leading-relaxed"
-                style={{ color: "rgba(255,255,255,0.55)" }}
+                style={{ color: "var(--color-text-muted)" }}
               >
                 {STEPS[step].content}
               </p>
@@ -310,8 +315,14 @@ export default function QuickTour() {
           <div className="flex items-center justify-between">
             <button
               onClick={close}
-              className="text-[11px] font-medium cursor-pointer py-1 px-1 rounded transition-colors hover:text-white"
-              style={{ color: "rgba(255,255,255,0.35)" }}
+              className="text-[11px] font-medium cursor-pointer py-1 px-1 rounded transition-colors"
+              style={{ color: "var(--color-text-muted)" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--color-text-primary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--color-text-muted)";
+              }}
             >
               Bỏ qua
             </button>
@@ -321,16 +332,14 @@ export default function QuickTour() {
                   onClick={() => setStep((s) => s - 1)}
                   className="w-8 h-8 flex items-center justify-center rounded-lg border cursor-pointer transition-colors"
                   style={{
-                    borderColor: "rgba(255,255,255,0.08)",
-                    color: "rgba(255,255,255,0.6)",
+                    borderColor: "var(--color-border)",
+                    color: "var(--color-text-secondary)",
                   }}
                   onMouseEnter={(e) =>
-                    (e.currentTarget.style.borderColor =
-                      "rgba(255,255,255,0.2)")
+                    (e.currentTarget.style.borderColor = "var(--color-primary)")
                   }
                   onMouseLeave={(e) =>
-                    (e.currentTarget.style.borderColor =
-                      "rgba(255,255,255,0.08)")
+                    (e.currentTarget.style.borderColor = "var(--color-border)")
                   }
                 >
                   <ChevronLeft size={14} />
@@ -359,8 +368,16 @@ export default function QuickTour() {
         {/* Close X */}
         <button
           onClick={close}
-          className="absolute top-2.5 right-2.5 p-1 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
-          style={{ color: "rgba(255,255,255,0.2)" }}
+          className="absolute top-2.5 right-2.5 p-1 rounded-full transition-colors cursor-pointer"
+          style={{ color: "var(--color-text-muted)" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--color-text-primary)";
+            e.currentTarget.style.background = "var(--color-bg-hover)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--color-text-muted)";
+            e.currentTarget.style.background = "transparent";
+          }}
         >
           <X size={12} />
         </button>
